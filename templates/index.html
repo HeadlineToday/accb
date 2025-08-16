@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="composer">
+  <form action="{{ url_for('create_post') }}" method="post" enctype="multipart/form-data">
+    <div class="composer-head">
+      <div class="avatar">{{ (user.anonymous_tag or 'You')[0:2] }}</div>
+      <div class="info">
+        <div class="tag">{{ user.anonymous_tag }}</div>
+        <div class="hint">Share text, an image, or both. Cooldown: {{ cooldown }}s</div>
+      </div>
+    </div>
+    <textarea name="text" rows="3" placeholder="What's on your mind (anonymous)?"></textarea>
+    <div class="composer-actions">
+      <input type="file" name="image" accept="image/*">
+      <button class="btn primary" type="submit">Post</button>
+    </div>
+  </form>
+</section>
+
+<section class="feed">
+  {% for p in posts %}
+  <article class="card">
+    <header class="card-head">
+      <div class="avatar">{{ (p.anonymous_tag or 'St')[0:2] }}</div>
+      <div>
+        <div class="tag">{{ p.anonymous_tag }}</div>
+        <div class="time">{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+      </div>
+      <div class="status">{{ p.status }}</div>
+    </header>
+    {% if p.text %}
+      <p class="text">{{ p.text }}</p>
+    {% endif %}
+    {% if p.image_url %}
+      <img class="post-img" src="{{ p.image_url }}" alt="post image">
+    {% endif %}
+    <footer class="card-foot">
+      <form action="{{ url_for('like', post_id=str(p._id)) }}" method="post">
+        <button class="btn" type="submit">♥ Like ({{ p.likes or 0 }})</button>
+      </form>
+    </footer>
+  </article>
+  {% else %}
+    <p class="muted">No posts yet. Be the first!</p>
+  {% endfor %}
+</section>
+{% endblock %}
