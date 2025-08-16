@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+
+<div class="grid-2">
+  <section>
+    <h3>Posts</h3>
+    <table class="table">
+      <thead><tr><th>When</th><th>User</th><th>Text</th><th>Image</th><th>Status</th><th>Act</th></tr></thead>
+      <tbody>
+      {% for p in posts %}
+        <tr>
+          <td>{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{{ p.anonymous_tag }}</td>
+          <td class="cut">{{ p.text }}</td>
+          <td>{% if p.image_url %}<a href="{{ p.image_url }}" target="_blank">view</a>{% endif %}</td>
+          <td>{{ p.status }}</td>
+          <td>
+            {% if p.status != 'hidden' %}
+            <form method="post" action="{{ url_for('admin_hide_post') }}" style="display:inline">
+              <input type="hidden" name="post_id" value="{{ p._id }}">
+              <button class="btn danger" type="submit">Hide</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h3>Users</h3>
+    <table class="table">
+      <thead><tr><th>Tag</th><th>Role</th><th>Status</th><th>Mute Until</th><th>Act</th></tr></thead>
+      <tbody>
+      {% for u in users %}
+        <tr>
+          <td>{{ u.anonymous_tag or u.email }}</td>
+          <td>{{ u.role }}</td>
+          <td>{{ u.status }}</td>
+          <td>{% if u.mute_until %}{{ u.mute_until.strftime('%Y-%m-%d %H:%M') }}{% else %}-{% endif %}</td>
+          <td>
+            <form method="post" action="{{ url_for('admin_ban_user') }}" style="display:inline">
+              <input type="hidden" name="user_id" value="{{ u._id }}">
+              <button class="btn danger" type="submit">Ban</button>
+            </form>
+            <form method="post" action="{{ url_for('admin_mute_user') }}" style="display:inline">
+              <input type="hidden" name="user_id" value="{{ u._id }}">
+              <input type="number" name="minutes" value="30" min="1" class="small">
+              <button class="btn" type="submit">Mute</button>
+            </form>
+            <form method="post" action="{{ url_for('admin_promote') }}" style="display:inline">
+              <input type="hidden" name="user_id" value="{{ u._id }}">
+              <select name="role">
+                <option value="admin">admin</option>
+                <option value="master_admin">master_admin</option>
+                <option value="user">user</option>
+              </select>
+              <button class="btn" type="submit">Set Role</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    <h3>Banned Words</h3>
+    <form method="post" action="{{ url_for('admin_add_banned') }}" class="row">
+      <input name="word" placeholder="add word…" required>
+      <button class="btn" type="submit">Add</button>
+    </form>
+    <ul class="chips">
+      {% for w in banned %}
+      <li class="chip">
+        {{ w.word }}
+        <form method="post" action="{{ url_for('admin_remove_banned') }}">
+          <input type="hidden" name="word_id" value="{{ w._id }}">
+          <button class="x">×</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}
