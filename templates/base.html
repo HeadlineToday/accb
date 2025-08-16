@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CampusAnon</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <nav class="nav">
+    <div class="brand">CampusAnon</div>
+    <div class="spacer"></div>
+    {% if session.get('admin_id') %}
+      <a class="btn" href="{{ url_for('admin_dashboard') }}">Admin</a>
+      <a class="btn" href="{{ url_for('admin_logout') }}">Logout</a>
+    {% else %}
+      <a class="btn" href="{{ url_for('admin_login') }}">Admin Login</a>
+    {% endif %}
+  </nav>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-wrap">
+    {% for cat, msg in messages %}
+    <div class="flash {{cat}}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
