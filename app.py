@@ -1,4 +1,5 @@
-import os, re, hashlib, uuid, imghdr
+import os, re, hashlib, uuid
+import filetype
 from datetime import datetime, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
@@ -15,7 +16,7 @@ load_dotenv()
 
 # --- Config ---
 FLASK_SECRET = os.getenv("FLASK_SECRET", "dev-secret")
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_URI = "mongodb+srv://056accbcluster:oKSchxQeNUAL0uPX@cluster0.z44dnnp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 DB_NAME = os.getenv("DB_NAME", "anon_app")
 POST_COOLDOWN_SECONDS = int(os.getenv("POST_COOLDOWN_SECONDS", "120"))
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
@@ -69,7 +70,6 @@ def current_admin():
     return None
 
 def allowed_image(stream, filename):
-    # simple validations
     if not filename:
         return False
     # size
@@ -78,16 +78,19 @@ def allowed_image(stream, filename):
     stream.seek(0)
     if size_mb > MAX_IMAGE_MB:
         return False
-    # extension/header
+    # extension
     name = secure_filename(filename)
     ext = os.path.splitext(name)[1].lower()
     if ext not in [".jpg", ".jpeg", ".png", ".gif", ".webp"]:
         return False
-    # imghdr (basic)
-    head = stream.read(512)
+    # header detection with filetype
+    head = stream.read(261)  # filetype needs at least 261 bytes
     stream.seek(0)
-    kind = imghdr.what(None, head)
-    return kind in ["jpeg", "png", "gif", "webp"]
+    kind = filetype.guess(head)
+    if not kind or not kind.mime.startswith("image/"):
+        return False
+    return True
+
 
 def first_boot_seed_admin():
     # Create index & seed initial admin + banned words if needed
