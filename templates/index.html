@@ -35,7 +35,7 @@
       <img class="post-img" src="{{ p.image_url }}" alt="post image">
     {% endif %}
     <footer class="card-foot">
-      <form action="{{ url_for('like', post_id=str(p._id)) }}" method="post">
+      <form action="{{ url_for('like', post_id=p._id) }}" method="post">
         <button class="btn" type="submit">♥ Like ({{ p.likes or 0 }})</button>
       </form>
     </footer>
