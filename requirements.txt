@@ -1,5 +1,8 @@
-Flask==3.0.3
-pymongo==4.8.0
-python-dotenv==1.0.1
-Werkzeug==3.0.3
-Pillow==10.4.0
+Flask
+pymongo
+python-dotenv
+Werkzeug
+Pillow
+flask-bcrypt
+flask-login
+dnspython
