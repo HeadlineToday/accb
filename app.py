@@ -12,11 +12,16 @@ from werkzeug.utils import secure_filename
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from bson import ObjectId
 
+import threading
+import http.server
+import socketserver
+from http import HTTPStatus
+
 load_dotenv()
 
 # --- Config ---
 FLASK_SECRET = os.getenv("FLASK_SECRET", "dev-secret")
-MONGO_URI = "mongodb+srv://056accbcluster:oKSchxQeNUAL0uPX@cluster0.z44dnnp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME", "anon_app")
 POST_COOLDOWN_SECONDS = int(os.getenv("POST_COOLDOWN_SECONDS", "120"))
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
@@ -340,5 +345,27 @@ def forbidden(e):
 def not_found(e):
     return render_template("error.html", code=404, message="Not Found"), 404
 
+PORT = 8080
+
+class Handler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(HTTPStatus.OK)
+        self.end_headers()
+        self.wfile.write(b'Hello World!')
+
+def run_raw_server():
+    with socketserver.TCPServer(("", PORT), Handler, False) as httpd:
+        print("Raw HTTP server started at port", PORT)
+        httpd.allow_reuse_address = True
+        httpd.server_bind()
+        httpd.server_activate()
+        httpd.serve_forever()
+
+# ------------------ Main Entry ------------------
 if __name__ == "__main__":
+    # Run raw HTTP server in a separate thread
+    t = threading.Thread(target=run_raw_server, daemon=True)
+    t.start()
+
+    # Run Flask app on default (5000)
     app.run(debug=True)
