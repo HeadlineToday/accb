@@ -1,6 +1,7 @@
 Flask==3.0.3
 gunicorn==21.2.0
 pymongo==4.8.0
-python-dotenv==1.0.1
+python-dotenv==1.1.1
 Werkzeug==3.0.3
 Pillow==10.4.0
+filetype==1.2.0
