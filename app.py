@@ -354,12 +354,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(b'Hello World!')
 
 def run_raw_server():
-    with socketserver.TCPServer(("", PORT), Handler, False) as httpd:
-        print("Raw HTTP server started at port", PORT)
+    with socketserver.TCPServer(("", PORT), Handler) as httpd:
         httpd.allow_reuse_address = True
-        httpd.server_bind()
-        httpd.server_activate()
+        print("Raw HTTP server started at port", PORT)
         httpd.serve_forever()
+
 
 # ------------------ Main Entry ------------------
 if __name__ == "__main__":
