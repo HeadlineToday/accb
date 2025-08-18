@@ -345,26 +345,24 @@ def forbidden(e):
 def not_found(e):
     return render_template("error.html", code=404, message="Not Found"), 404
 
-PORT = 8080
+#PORT = 8080
 
-class Handler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(HTTPStatus.OK)
-        self.end_headers()
-        self.wfile.write(b'Hello World!')
+#class Handler(http.server.SimpleHTTPRequestHandler):
+ #   def do_GET(self):
+  #      self.send_response(HTTPStatus.OK)
+   #     self.end_headers()
+    #    self.wfile.write(b'Hello World!')
 
-def run_raw_server():
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        httpd.allow_reuse_address = True
-        print("Raw HTTP server started at port", PORT)
-        httpd.serve_forever()
+#def run_raw_server():
+ #   with socketserver.TCPServer(("", PORT), Handler) as httpd:
+  #      httpd.allow_reuse_address = True
+   #     print("Raw HTTP server started at port", PORT)
+    #    httpd.serve_forever()
 
 
 # ------------------ Main Entry ------------------
 if __name__ == "__main__":
-    # Run raw HTTP server in a separate thread
-    t = threading.Thread(target=run_raw_server, daemon=True)
-    t.start()
+    # Use the port Koyeb provides (default 8080), fallback to 5000 locally
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
 
-    # Run Flask app on default (5000)
-    app.run(debug=True)
