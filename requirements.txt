@@ -8,3 +8,5 @@ flask-bcrypt
 flask-login 
 dnspython
 gunicorn
+flask-socketio
+eventlet
