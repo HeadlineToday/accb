@@ -214,12 +214,23 @@ def create_post():
         "anonymous_tag": user["anonymous_tag"],
         "text": text if text else None,
         "image_url": image_url,
-        "status": "active",  # active | hidden | flagged
+        "status": "active",
         "created_at": datetime.utcnow(),
-        "likes": 0
+        "likes": 0,
+        "liked_by": []
     }
     Posts.insert_one(post)
     Users.update_one({"_id": user["_id"]}, {"$set": {"last_post_at": datetime.utcnow()}})
+
+    # 🔥 Real-time broadcast to everyone
+    socketio.emit("new_post", {
+        "post_id": str(post["_id"]),
+        "anonymous_tag": post["anonymous_tag"],
+        "text": post["text"],
+        "image_url": post["image_url"],
+        "created_at": post["created_at"].isoformat(),
+        "likes": post["likes"],
+    }, broadcast=True)
 
     flash("Posted! 🎉", "ok")
     return redirect(url_for("home"))
