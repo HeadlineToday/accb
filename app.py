@@ -261,11 +261,11 @@ def like(post_id):
 
     # Broadcast updated like count
     socketio.emit("like_update", {
-        "post_id": post_id,
-        "likes": new_likes,
-        "user_id": user_id,
-        "action": action
-    }, broadcast=True)
+    "post_id": post_id,
+    "user_id": user_id,
+    "action": action
+})
+
 
     return jsonify({"likes": new_likes, "action": action})
 
