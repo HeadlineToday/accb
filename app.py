@@ -33,8 +33,8 @@ Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__)
 app.secret_key = FLASK_SECRET
+socketio = SocketIO(app, async_mode="eventlet", cors_allowed_origins="*")
 
-socketio = SocketIO(app, async_mode="eventlet")
 
 
 client = MongoClient(MONGO_URI)
