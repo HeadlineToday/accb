@@ -48,6 +48,31 @@
   {% endfor %}
 </section>
 
+#for_post
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+  const socket = io();
+
+  // Handle new posts in real-time
+  socket.on("new_post", function(post) {
+    const container = document.getElementById("posts");
+    const div = document.createElement("div");
+    div.className = "post";
+
+    div.innerHTML = `
+      <p><strong>${post.anonymous_tag}</strong></p>
+      ${post.text ? `<p>${post.text}</p>` : ""}
+      ${post.image_url ? `<img src="${post.image_url}" alt="image">` : ""}
+      <p>❤️ <span class="like-count">${post.likes}</span></p>
+    `;
+
+    container.prepend(div); // add to top
+  });
+</script>
+
+#for_like
+
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
   const socket = io();
