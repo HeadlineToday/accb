@@ -36,9 +36,12 @@
     {% endif %}
     <footer class="card-foot">
       <form action="{{ url_for('like', post_id=p._id) }}" method="post">
-        <button class="btn" type="submit" data-post-id="{{ p._id }}">♥ Like ({{ p.likes or 0 }})</button>
+        <button class="btn like-btn" type="submit" data-post-id="{{ p._id }}">
+          <span class="heart" style="color:gray;">♥</span> Like ({{ p.likes or 0 }})
+        </button>
       </form>
     </footer>
+
   </article>
   {% else %}
     <p class="muted">No posts yet. Be the first!</p>
@@ -53,7 +56,7 @@
   socket.on("like_update", data => {
     const btn = document.querySelector(`[data-post-id="${data.post_id}"]`);
     if (btn) {
-      btn.innerText = `♥ Like (${data.likes})`;
+      btn.innerHTML = `<span class="heart" style="color:${data.liked ? 'red' : 'gray'};">♥</span> Like (${data.likes})`;
     }
   });
 
@@ -62,15 +65,16 @@
     form.addEventListener("submit", async e => {
       e.preventDefault();
       const url = form.getAttribute("action");
+      const btn = form.querySelector("button");
 
       const res = await fetch(url, { method: "POST" });
       if (res.ok) {
-        // disable button immediately (prevent multiple likes)
-        const btn = form.querySelector("button");
-        btn.disabled = true;
+        const data = await res.json();
+        btn.innerHTML = `<span class="heart" style="color:${data.liked ? 'red' : 'gray'};">♥</span> Like (${data.likes})`;
       }
     });
   });
 </script>
+
 
 {% endblock %}
