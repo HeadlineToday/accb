@@ -56,12 +56,12 @@
   socket.on("like_update", data => {
     const btn = document.querySelector(`[data-post-id="${data.post_id}"]`);
     if (btn) {
-      const heart = btn.querySelector(".heart");
       const text = btn.querySelector(".like-text");
-      heart.style.color = data.liked ? "red" : "gray";
+      // ✅ Only update count, not heart color
       text.textContent = ` Like (${data.likes})`;
     }
   });
+
 
   // Intercept like form submits → AJAX + Optimistic UI
   document.querySelectorAll("form[action*='/like/']").forEach(form => {
