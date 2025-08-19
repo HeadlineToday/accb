@@ -36,7 +36,7 @@
     {% endif %}
     <footer class="card-foot">
       <form action="{{ url_for('like', post_id=p._id) }}" method="post">
-        <button class="btn" type="submit">♥ Like ({{ p.likes or 0 }})</button>
+        <button class="btn" type="submit" data-post-id="{{ p._id }}">♥ Like ({{ p.likes or 0 }})</button>
       </form>
     </footer>
   </article>
@@ -44,4 +44,33 @@
     <p class="muted">No posts yet. Be the first!</p>
   {% endfor %}
 </section>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+  const socket = io();
+
+  // Listen for like updates from server
+  socket.on("like_update", data => {
+    const btn = document.querySelector(`[data-post-id="${data.post_id}"]`);
+    if (btn) {
+      btn.innerText = `♥ Like (${data.likes})`;
+    }
+  });
+
+  // Intercept like form submits → AJAX
+  document.querySelectorAll("form[action*='/like/']").forEach(form => {
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+      const url = form.getAttribute("action");
+
+      const res = await fetch(url, { method: "POST" });
+      if (res.ok) {
+        // disable button immediately (prevent multiple likes)
+        const btn = form.querySelector("button");
+        btn.disabled = true;
+      }
+    });
+  });
+</script>
+
 {% endblock %}
