@@ -31,7 +31,7 @@ MAX_IMAGE_MB = int(os.getenv("MAX_IMAGE_MB", "5"))
 
 Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", static_url_path="/static")
 app.secret_key = FLASK_SECRET
 socketio = SocketIO(app, async_mode="eventlet", cors_allowed_origins="*")
 
