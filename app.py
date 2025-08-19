@@ -34,7 +34,7 @@ Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 app = Flask(__name__)
 app.secret_key = FLASK_SECRET
 
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, async_mode="eventlet")
 
 
 client = MongoClient(MONGO_URI)
@@ -410,6 +410,6 @@ def not_found(e):
 if __name__ == "__main__":
     # Use the port Koyeb provides (default 8080), fallback to 5000 locally
     port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host="0.0.0.0", port=port, debug=False)
+    socketio.run(app, host="0.0.0.0", port=8080, debug=False)
 
 
