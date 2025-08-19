@@ -209,6 +209,7 @@ def create_post():
         flash("Post cannot be empty.", "error")
         return redirect(url_for("home"))
 
+    # Build the doc
     post = {
         "user_id": str(user["_id"]),
         "anonymous_tag": user["anonymous_tag"],
@@ -219,21 +220,26 @@ def create_post():
         "likes": 0,
         "liked_by": []
     }
-    Posts.insert_one(post)
+    
+    # Insert & capture the new _id
+    res = Posts.insert_one(post)
+    post_id = str(res.inserted_id)
+    
     Users.update_one({"_id": user["_id"]}, {"$set": {"last_post_at": datetime.utcnow()}})
-
-    # 🔥 Real-time broadcast to everyone
+    
+    # 🔥 Broadcast the new post to everyone
     socketio.emit("new_post", {
-        "post_id": str(post["_id"]),
+        "post_id": post_id,
         "anonymous_tag": post["anonymous_tag"],
         "text": post["text"],
         "image_url": post["image_url"],
         "created_at": post["created_at"].isoformat(),
         "likes": post["likes"],
     })
-
+    
     flash("Posted! 🎉", "ok")
     return redirect(url_for("home"))
+
 
 @app.route("/like/<post_id>", methods=["POST"])
 def like(post_id):
