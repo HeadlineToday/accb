@@ -230,7 +230,7 @@ def create_post():
         "image_url": post["image_url"],
         "created_at": post["created_at"].isoformat(),
         "likes": post["likes"],
-    }
+    })
 
     flash("Posted! 🎉", "ok")
     return redirect(url_for("home"))
