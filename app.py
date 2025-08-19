@@ -256,20 +256,20 @@ def like(post_id):
         new_likes = current_likes + 1
         liked = True
 
-    # ✅ Broadcast from inside the function + send a boolean `liked`
+    # Broadcast to everyone: only the counts
     socketio.emit(
         "like_update",
         {
             "post_id": post_id,
             "likes": new_likes,
-            "liked": liked,
             "user_id": user_id,
             "user_tag": user.get("anonymous_tag"),
         }
     )
-
-    # ✅ Return the same shape the client expects
+    
+    # Send liked/unliked state only to the current user (via HTTP response)
     return jsonify({"likes": new_likes, "liked": liked})
+
 
 
 
