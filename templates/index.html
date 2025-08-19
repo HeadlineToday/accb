@@ -17,7 +17,7 @@
   </form>
 </section>
 
-<section class="feed">
+<section class="feed" id="feed">
   {% for p in posts %}
   <article class="card">
     <header class="card-head">
@@ -50,80 +50,97 @@
 
 #for_post
 
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script>
-  const socket = io();
-
-  // Handle new posts in real-time
-  socket.on("new_post", function(post) {
-    const container = document.getElementById("posts");
-    const div = document.createElement("div");
-    div.className = "post";
-
-    div.innerHTML = `
-      <p><strong>${post.anonymous_tag}</strong></p>
-      ${post.text ? `<p>${post.text}</p>` : ""}
-      ${post.image_url ? `<img src="${post.image_url}" alt="image">` : ""}
-      <p>❤️ <span class="like-count">${post.likes}</span></p>
-    `;
-
-    container.prepend(div); // add to top
-  });
-</script>
-
-#for_like
-
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
   const socket = io();
 
-  // Listen for like updates from server
+  // ------- Helpers -------
+  const pad = n => String(n).padStart(2, "0");
+  const fmt = iso => {
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  function renderPostCard(p) {
+    const initials = (p.anonymous_tag || "St").slice(0, 2);
+    const article = document.createElement("article");
+    article.className = "card";
+    article.innerHTML = `
+      <header class="card-head">
+        <div class="avatar">${initials}</div>
+        <div>
+          <div class="tag">${p.anonymous_tag || ""}</div>
+          <div class="time">${fmt(p.created_at)}</div>
+        </div>
+        <div class="status">active</div>
+      </header>
+      ${p.text ? `<p class="text"></p>` : ""}
+      ${p.image_url ? `<img class="post-img" src="${p.image_url}" alt="post image">` : ""}
+      <footer class="card-foot">
+        <form action="/like/${p.post_id}" method="post">
+          <button class="btn like-btn" type="submit" data-post-id="${p.post_id}">
+            <span class="heart" style="color:gray;">♥</span>
+            <span class="like-text"> Like (${p.likes || 0})</span>
+          </button>
+        </form>
+      </footer>
+    `;
+    if (p.text) article.querySelector(".text").textContent = p.text;
+    return article;
+  }
+
+  // ------- Real-time: new posts -------
+  socket.on("new_post", (p) => {
+    const feed = document.getElementById("feed");
+    if (!feed) return;
+    const card = renderPostCard(p);
+    feed.prepend(card); // newest first
+  });
+
+  // ------- Real-time: likes (from server) -------
   socket.on("like_update", data => {
-    const btn = document.querySelector(`[data-post-id="${data.post_id}"]`);
+    const btn = document.querySelector(`button.like-btn[data-post-id="${data.post_id}"]`);
     if (btn) {
+      const heart = btn.querySelector(".heart");
       const text = btn.querySelector(".like-text");
-      // ✅ Only update count, not heart color
+      // `liked` is only guaranteed in HTTP response for the clicker; for others just update count
+      if (typeof data.liked === "boolean") {
+        heart.style.color = data.liked ? "red" : "gray";
+      }
       text.textContent = ` Like (${data.likes})`;
     }
   });
 
+  // ------- Like handler with event delegation (works for dynamic posts) -------
+  document.getElementById("feed").addEventListener("submit", async (e) => {
+    const form = e.target;
+    if (!form.matches(`form[action^="/like/"]`)) return;
+    e.preventDefault();
 
-  // Intercept like form submits → AJAX + Optimistic UI
-  document.querySelectorAll("form[action*='/like/']").forEach(form => {
-    form.addEventListener("submit", async e => {
-      e.preventDefault();
-      const url = form.getAttribute("action");
-      const btn = form.querySelector("button");
-      const heart = btn.querySelector(".heart");
-      const text = btn.querySelector(".like-text");
+    const url = form.getAttribute("action");
+    const btn = form.querySelector("button.like-btn");
+    const heart = btn.querySelector(".heart");
+    const text = btn.querySelector(".like-text");
 
-      // --- Optimistic update ---
-      let currentLikes = parseInt(text.textContent.match(/\d+/)[0], 10);
-      let isLiked = heart.style.color === "red";
-      if (isLiked) {
-        heart.style.color = "gray";
-        text.textContent = ` Like (${currentLikes - 1})`;
+    // Optimistic UI
+    let current = parseInt(text.textContent.match(/\d+/)[0], 10);
+    const isLiked = heart.style.color === "red";
+    heart.style.color = isLiked ? "gray" : "red";
+    text.textContent = ` Like (${isLiked ? current - 1 : current + 1})`;
+
+    try {
+      const res = await fetch(url, { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        heart.style.color = data.liked ? "red" : "gray";
+        text.textContent = ` Like (${data.likes})`;
       } else {
-        heart.style.color = "red";
-        text.textContent = ` Like (${currentLikes + 1})`;
+        console.error("Like failed:", res.status);
       }
-
-      // --- Send request to server ---
-      try {
-        const res = await fetch(url, { method: "POST" });
-        if (res.ok) {
-          const data = await res.json();
-          // Correct UI with server’s authoritative response
-          heart.style.color = data.liked ? "red" : "gray";
-          text.textContent = ` Like (${data.likes})`;
-        } else {
-          console.error("Like request failed:", res.status);
-        }
-      } catch (err) {
-        console.error("Network error:", err);
-      }
-    });
-  });
+    } catch (err) {
+      console.error("Network error:", err);
+    }
+  }, true); // capture = true ensures we catch submits reliably
 </script>
 
 {% endblock %}
