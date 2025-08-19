@@ -63,7 +63,7 @@
     }
   });
 
-  // Intercept like form submits → AJAX
+  // Intercept like form submits → AJAX + Optimistic UI
   document.querySelectorAll("form[action*='/like/']").forEach(form => {
     form.addEventListener("submit", async e => {
       e.preventDefault();
@@ -72,11 +72,30 @@
       const heart = btn.querySelector(".heart");
       const text = btn.querySelector(".like-text");
 
-      const res = await fetch(url, { method: "POST" });
-      if (res.ok) {
-        const data = await res.json();
-        heart.style.color = data.liked ? "red" : "gray";
-        text.textContent = ` Like (${data.likes})`;
+      // --- Optimistic update ---
+      let currentLikes = parseInt(text.textContent.match(/\d+/)[0], 10);
+      let isLiked = heart.style.color === "red";
+      if (isLiked) {
+        heart.style.color = "gray";
+        text.textContent = ` Like (${currentLikes - 1})`;
+      } else {
+        heart.style.color = "red";
+        text.textContent = ` Like (${currentLikes + 1})`;
+      }
+
+      // --- Send request to server ---
+      try {
+        const res = await fetch(url, { method: "POST" });
+        if (res.ok) {
+          const data = await res.json();
+          // Correct UI with server’s authoritative response
+          heart.style.color = data.liked ? "red" : "gray";
+          text.textContent = ` Like (${data.likes})`;
+        } else {
+          console.error("Like request failed:", res.status);
+        }
+      } catch (err) {
+        console.error("Network error:", err);
       }
     });
   });
