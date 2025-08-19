@@ -265,8 +265,7 @@ def like(post_id):
             "liked": liked,
             "user_id": user_id,
             "user_tag": user.get("anonymous_tag"),
-        },
-        broadcast=True,
+        }
     )
 
     # ✅ Return the same shape the client expects
