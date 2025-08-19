@@ -7,6 +7,8 @@ from flask import (
     Flask, request, render_template, redirect, url_for,
     session, jsonify, send_from_directory, abort, flash
 )
+from flask_socketio import SocketIO, emit
+
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient, ASCENDING, DESCENDING
@@ -31,6 +33,9 @@ Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__)
 app.secret_key = FLASK_SECRET
+
+socketio = SocketIO(app, cors_allowed_origins="*")
+
 
 client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
@@ -221,9 +226,34 @@ def create_post():
 
 @app.route("/like/<post_id>", methods=["POST"])
 def like(post_id):
-    # Simple like, no duplicate guard for MVP
-    Posts.update_one({"_id": ObjectId(post_id), "status": "active"}, {"$inc": {"likes": 1}})
+    user = current_user()
+    if not user:
+        abort(401)
+
+    post = Posts.find_one({"_id": ObjectId(post_id), "status": "active"})
+    if not post:
+        abort(404)
+
+    # Check if user already liked
+    if str(user["_id"]) in post.get("liked_by", []):
+        return ("", 204)
+
+    Posts.update_one(
+        {"_id": ObjectId(post_id)},
+        {
+            "$inc": {"likes": 1},
+            "$push": {"liked_by": str(user["_id"])}
+        }
+    )
+
+    # Broadcast updated like count
+    socketio.emit("like_update", {
+        "post_id": post_id,
+        "likes": post["likes"] + 1
+    }, broadcast=True)
+
     return ("", 204)
+
 
 # --- Admin Auth ---
 @app.route("/admin/login", methods=["GET", "POST"])
@@ -364,5 +394,6 @@ def not_found(e):
 if __name__ == "__main__":
     # Use the port Koyeb provides (default 8080), fallback to 5000 locally
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    socketio.run(app, host="0.0.0.0", port=port, debug=False)
+
 
