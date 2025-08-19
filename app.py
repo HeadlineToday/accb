@@ -234,25 +234,41 @@ def like(post_id):
     if not post:
         abort(404)
 
-    # Check if user already liked
-    if str(user["_id"]) in post.get("liked_by", []):
-        return ("", 204)
+    user_id = str(user["_id"])
 
-    Posts.update_one(
-        {"_id": ObjectId(post_id)},
-        {
-            "$inc": {"likes": 1},
-            "$push": {"liked_by": str(user["_id"])}
-        }
-    )
+    if user_id in post.get("liked_by", []):
+        # Already liked → unlike
+        Posts.update_one(
+            {"_id": ObjectId(post_id)},
+            {
+                "$inc": {"likes": -1},
+                "$pull": {"liked_by": user_id}
+            }
+        )
+        new_likes = max(post["likes"] - 1, 0)  # Prevent negatives
+        action = "unliked"
+    else:
+        # Not liked yet → like
+        Posts.update_one(
+            {"_id": ObjectId(post_id)},
+            {
+                "$inc": {"likes": 1},
+                "$push": {"liked_by": user_id}
+            }
+        )
+        new_likes = post["likes"] + 1
+        action = "liked"
 
     # Broadcast updated like count
     socketio.emit("like_update", {
         "post_id": post_id,
-        "likes": post["likes"] + 1
+        "likes": new_likes,
+        "user_id": user_id,
+        "action": action
     }, broadcast=True)
 
-    return ("", 204)
+    return jsonify({"likes": new_likes, "action": action})
+
 
 
 # --- Admin Auth ---
