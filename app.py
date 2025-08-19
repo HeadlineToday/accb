@@ -235,42 +235,43 @@ def like(post_id):
         abort(404)
 
     user_id = str(user["_id"])
+    current_likes = int(post.get("likes", 0))
+    liked_by = post.get("liked_by", [])
 
-    if user_id in post.get("liked_by", []):
-        # Already liked → unlike
+    # Toggle like
+    if user_id in liked_by:
+        # Unlike
         Posts.update_one(
             {"_id": ObjectId(post_id)},
-            {
-                "$inc": {"likes": -1},
-                "$pull": {"liked_by": user_id}
-            }
+            {"$inc": {"likes": -1}, "$pull": {"liked_by": user_id}}
         )
-        new_likes = max(post["likes"] - 1, 0)  # Prevent negatives
-        action = "unliked"
+        new_likes = max(current_likes - 1, 0)
+        liked = False
     else:
-        # Not liked yet → like
+        # Like
         Posts.update_one(
             {"_id": ObjectId(post_id)},
-            {
-                "$inc": {"likes": 1},
-                "$push": {"liked_by": user_id}
-            }
+            {"$inc": {"likes": 1}, "$push": {"liked_by": user_id}}
         )
-        new_likes = post["likes"] + 1
-        action = "liked"
+        new_likes = current_likes + 1
+        liked = True
 
-    # Broadcast updated like count with both ID and tag
-socketio.emit("like_update", {
-    "post_id": post_id,
-    "user_id": user_id,
-    "user_tag": user["anonymous_tag"],  # Add this
-    "action": action,
-    "likes": new_likes                  # also include fresh count
-}, broadcast=True)
+    # ✅ Broadcast from inside the function + send a boolean `liked`
+    socketio.emit(
+        "like_update",
+        {
+            "post_id": post_id,
+            "likes": new_likes,
+            "liked": liked,
+            "user_id": user_id,
+            "user_tag": user.get("anonymous_tag"),
+        },
+        broadcast=True,
+    )
 
+    # ✅ Return the same shape the client expects
+    return jsonify({"likes": new_likes, "liked": liked})
 
-
-    return jsonify({"likes": new_likes, "action": action})
 
 
 
