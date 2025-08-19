@@ -259,12 +259,15 @@ def like(post_id):
         new_likes = post["likes"] + 1
         action = "liked"
 
-    # Broadcast updated like count
-    socketio.emit("like_update", {
+    # Broadcast updated like count with both ID and tag
+socketio.emit("like_update", {
     "post_id": post_id,
     "user_id": user_id,
-    "action": action
-})
+    "user_tag": user["anonymous_tag"],  # Add this
+    "action": action,
+    "likes": new_likes                  # also include fresh count
+}, broadcast=True)
+
 
 
     return jsonify({"likes": new_likes, "action": action})
