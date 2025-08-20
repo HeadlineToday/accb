@@ -88,4 +88,27 @@
     </ul>
   </section>
 </div>
+
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+    const socket = io();
+
+    // Hide event
+    socket.on("post_hidden", (data) => {
+        const post = document.getElementById(data.post_id);
+        if (post) {
+            post.classList.add("hidden");
+        }
+    });
+
+    // Unhide event
+    socket.on("post_unhidden", (data) => {
+        const post = document.getElementById(data.post_id);
+        if (post) {
+            post.classList.remove("hidden");
+        }
+    });
+</script>
+
 {% endblock %}
