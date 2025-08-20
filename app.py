@@ -353,6 +353,18 @@ def admin_unhide_post():
     flash("Post unhidden.", "ok")
     return redirect(url_for("admin_dashboard"))
 
+@app.route("/hide/<post_id>", methods=["POST"])
+def hide_post(post_id):
+    Posts.update_one({"_id": ObjectId(post_id)}, {"$set": {"hidden": True}})
+    socketio.emit("post_hidden", {"post_id": post_id}, broadcast=True)
+    return jsonify({"success": True})
+
+@app.route("/unhide/<post_id>", methods=["POST"])
+def unhide_post(post_id):
+    Posts.update_one({"_id": ObjectId(post_id)}, {"$set": {"hidden": False}})
+    socketio.emit("post_unhidden", {"post_id": post_id}, broadcast=True)
+    return jsonify({"success": True})
+
 
 @app.post("/admin/ban_user")
 def admin_ban_user():
