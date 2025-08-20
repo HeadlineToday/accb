@@ -343,6 +343,17 @@ def admin_hide_post():
     flash("Post hidden.", "ok")
     return redirect(url_for("admin_dashboard"))
 
+@app.post("/admin/unhide_post")
+def admin_unhide_post():
+    if not current_admin():
+        abort(403)
+    pid = request.form.get("post_id")
+    Posts.update_one({"_id": ObjectId(pid)}, {"$set": {"status": "active"}})
+    log_admin("unhide_post", target=pid)
+    flash("Post unhidden.", "ok")
+    return redirect(url_for("admin_dashboard"))
+
+
 @app.post("/admin/ban_user")
 def admin_ban_user():
     if not current_admin(): abort(403)
