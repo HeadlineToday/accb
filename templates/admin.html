@@ -6,27 +6,26 @@
   <section>
     <h3>Posts</h3>
     <table class="table">
-      <thead><tr><th>When</th><th>User</th><th>Text</th><th>Image</th><th>Status</th><th>Act</th></tr></thead>
-      <tbody>
+      <thead>
+        <tr><th>When</th><th>User</th><th>Text</th><th>Image</th><th>Status</th><th>Act</th></tr>
+      </thead>
+      <tbody id="admin-posts-tbody">
       {% for p in posts %}
-        <tr>
-          <td>{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-          <td>{{ p.anonymous_tag }}</td>
-          <td class="cut">{{ p.text }}</td>
-          <td>{% if p.image_url %}<a href="{{ p.image_url }}" target="_blank">view</a>{% endif %}</td>
-          <td>{{ p.status }}</td>
+        <tr data-admin-post-id="{{ p._id }}">
+          <td data-col="when">{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td data-col="user">{{ p.anonymous_tag }}</td>
+          <td class="cut" data-col="text">{{ p.text }}</td>
+          <td data-col="image">{% if p.image_url %}<a href="{{ p.image_url }}" target="_blank">view</a>{% endif %}</td>
+          <td data-col="status">{{ p.status }}</td>
           <td>
-            {% if p.status != 'hidden' %}
-            <form method="post" action="{{ url_for('admin_hide_post') }}" style="display:inline">
+            <form data-action="hide" method="post" action="{{ url_for('admin_hide_post') }}" style="display: {{ 'none' if p.status=='hidden' else 'inline' }}">
               <input type="hidden" name="post_id" value="{{ p._id }}">
               <button class="btn danger" type="submit">Hide</button>
             </form>
-            {% else %}
-            <form method="post" action="{{ url_for('admin_unhide_post') }}" style="display:inline">
+            <form data-action="unhide" method="post" action="{{ url_for('admin_unhide_post') }}" style="display: {{ 'inline' if p.status=='hidden' else 'none' }}">
               <input type="hidden" name="post_id" value="{{ p._id }}">
               <button class="btn" type="submit">Unhide</button>
             </form>
-            {% endif %}
           </td>
         </tr>
       {% endfor %}
@@ -89,26 +88,52 @@
   </section>
 </div>
 
-
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<!-- Single Socket.IO include -->
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
-    const socket = io();
+  const socket = io();
 
-    // Hide event
-    socket.on("post_hidden", (data) => {
-        const post = document.getElementById(data.post_id);
-        if (post) {
-            post.classList.add("hidden");
-        }
-    });
+  // Reflect hide/unhide from anywhere
+  socket.on("post_status_changed", ({ post_id, status }) => {
+    const row = document.querySelector(`[data-admin-post-id="${post_id}"]`);
+    if (!row) return;
+    row.querySelector('[data-col="status"]').textContent = status;
 
-    // Unhide event
-    socket.on("post_unhidden", (data) => {
-        const post = document.getElementById(data.post_id);
-        if (post) {
-            post.classList.remove("hidden");
-        }
-    });
+    const hideForm   = row.querySelector('form[data-action="hide"]');
+    const unhideForm = row.querySelector('form[data-action="unhide"]');
+    if (status === "hidden") {
+      if (hideForm) hideForm.style.display = "none";
+      if (unhideForm) unhideForm.style.display = "inline";
+    } else {
+      if (hideForm) hideForm.style.display = "inline";
+      if (unhideForm) unhideForm.style.display = "none";
+    }
+  });
+
+  // Append new posts live to the admin table
+  socket.on("new_post", (p) => {
+    const tbody = document.getElementById("admin-posts-tbody");
+    if (!tbody) return;
+    const tr = document.createElement("tr");
+    tr.setAttribute("data-admin-post-id", p._id);
+    const when = new Date(p.created_at).toISOString().slice(0,16).replace('T',' ');
+    tr.innerHTML = `
+      <td data-col="when">${when}</td>
+      <td data-col="user">${p.anonymous_tag || ""}</td>
+      <td class="cut" data-col="text">${p.text || ""}</td>
+      <td data-col="image">${p.image_url ? `<a href="${p.image_url}" target="_blank">view</a>` : ""}</td>
+      <td data-col="status">${p.status || "active"}</td>
+      <td>
+        <form data-action="hide" method="post" action="/admin/hide_post" style="display:inline">
+          <input type="hidden" name="post_id" value="${p._id}">
+          <button class="btn danger" type="submit">Hide</button>
+        </form>
+        <form data-action="unhide" method="post" action="/admin/unhide_post" style="display:none">
+          <input type="hidden" name="post_id" value="${p._id}">
+          <button class="btn" type="submit">Unhide</button>
+        </form>
+      </td>`;
+    tbody.prepend(tr);
+  });
 </script>
-
 {% endblock %}
