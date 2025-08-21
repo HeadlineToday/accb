@@ -225,20 +225,25 @@ def create_post():
     }
     
     # Insert & capture the new _id
+   # --- inside create_post() right after insert_one ---
+
     res = Posts.insert_one(post)
     post_id = str(res.inserted_id)
     
     Users.update_one({"_id": user["_id"]}, {"$set": {"last_post_at": datetime.utcnow()}})
     
-    # 🔥 Broadcast the new post to everyone
+    # 🔥 Broadcast the new post to everyone (include _id and status)
     socketio.emit("new_post", {
-        "post_id": post_id,
+        "_id": post_id,                       # <— add
+        "post_id": post_id,                   # keep alias if you already use it
         "anonymous_tag": post["anonymous_tag"],
         "text": post["text"],
         "image_url": post["image_url"],
         "created_at": post["created_at"].isoformat(),
+        "status": "active",                   # <— add
         "likes": post["likes"],
     })
+
     
     flash("Posted! 🎉", "ok")
     return redirect(url_for("home"))
@@ -449,8 +454,9 @@ def not_found(e):
 
 # ------------------ Main Entry ------------------
 if __name__ == "__main__":
-    # Use the port Koyeb provides (default 8080), fallback to 5000 locally
-    port = int(os.environ.get("PORT", 5000))
+    # Use platform PORT if provided (default 8080)
+    port = int(os.environ.get("PORT", 8080))
     socketio.run(app, host="0.0.0.0", port=port, debug=False)
+
 
 
