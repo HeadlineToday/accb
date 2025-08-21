@@ -139,18 +139,10 @@
     }
   }, true);
 
-  // --- Real-time: hide/unhide posts ---
-  socket.on("post_hidden", data => {
-    const post = document.querySelector(`article[data-post-id="${data.post_id}"]`);
-    if (post) {
-      post.style.display = "none"; // or add a "hidden" class if you prefer
-    }
-  });
-
-  socket.on("post_unhidden", data => {
-    const post = document.querySelector(`article[data-post-id="${data.post_id}"]`);
-    if (post) {
-      post.style.display = ""; // restore visibility
+  socket.on("toggle_post", function(post) {
+    const el = document.getElementById("post-" + post.id);
+    if (el) {
+      el.style.display = post.hidden ? "none" : "block";
     }
   });
 
