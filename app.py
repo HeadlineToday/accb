@@ -249,33 +249,52 @@ def create_post():
     return redirect(url_for("home"))
 
 
-@app.route('/like/<post_id>', methods=['POST'])
+@app.route("/like/<post_id>", methods=["POST"])
 def like(post_id):
-    user_id = session.get("user_id")  # however you track the user
-    post = posts.find_one({"_id": ObjectId(post_id)})
+    user = current_user()
+    if not user:
+        abort(401)
 
+    post = Posts.find_one({"_id": ObjectId(post_id), "status": "active"})
     if not post:
-        return jsonify({"error": "Post not found"}), 404
+        abort(404)
 
+    user_id = str(user["_id"])
+    current_likes = int(post.get("likes", 0))
     liked_by = post.get("liked_by", [])
+
+    # Toggle like
     if user_id in liked_by:
         # Unlike
-        liked_by.remove(user_id)
+        Posts.update_one(
+            {"_id": ObjectId(post_id)},
+            {"$inc": {"likes": -1}, "$pull": {"liked_by": user_id}}
+        )
+        new_likes = max(current_likes - 1, 0)
+        liked = False
     else:
         # Like
-        liked_by.append(user_id)
+        Posts.update_one(
+            {"_id": ObjectId(post_id)},
+            {"$inc": {"likes": 1}, "$push": {"liked_by": user_id}}
+        )
+        new_likes = current_likes + 1
+        liked = True
 
-    posts.update_one(
-        {"_id": ObjectId(post_id)},
-        {"$set": {"liked_by": liked_by, "likes": len(liked_by)}}
+    # Broadcast to everyone: only the counts
+    socketio.emit(
+        "like_update",
+        {
+            "post_id": post_id,
+            "likes": new_likes,
+            "user_id": user_id,
+            "user_tag": user.get("anonymous_tag"),
+        }
     )
+    
+    # Send liked/unliked state only to the current user (via HTTP response)
+    return jsonify({"likes": new_likes, "liked": liked})
 
-    socketio.emit("like_update", {
-        "post_id": post_id,
-        "likes": len(liked_by),
-    }, broadcast=True)
-
-    return jsonify({"liked": user_id in liked_by, "likes": len(liked_by)})
 
 
 
