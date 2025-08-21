@@ -372,10 +372,7 @@ def admin_unhide_post():
 
 @app.route("/admin/delete/<post_id>", methods=["POST"])
 def delete_post(post_id):
-    user = current_user()
-    if not user or not user.get("is_admin"):  # Ensure only admins can delete
-        app.logger.warning(f"Unauthorized delete attempt by user: {user}")  # log failed auth
-        abort(403)
+    if not current_admin(): abort(403)
 
     result = Posts.delete_one({"_id": ObjectId(post_id)})
     if result.deleted_count == 0:
