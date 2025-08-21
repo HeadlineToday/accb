@@ -380,8 +380,7 @@ def delete_post(post_id):
         app.logger.error(f"Delete failed: Post with id {post_id} not found.")
     else:
         flash("Post deleted successfully.", "success")
-        app.logger.info(f"Post deleted successfully: {post_id} by admin {user.get('_id')}")
-
+      
     return redirect(url_for("admin_dashboard"))
 
 
