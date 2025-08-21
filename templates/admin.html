@@ -144,5 +144,24 @@
       </td>`;
     tbody.prepend(tr);
   });
+
+document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const postId = btn.dataset.id;
+
+        fetch(`/delete/${postId}`, { method: "POST" })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById(`post-${postId}`).remove(); // remove from DOM
+                } else {
+                    alert("Error: " + data.error);
+                }
+            });
+    });
+});
+
 </script>
+
+
 {% endblock %}
