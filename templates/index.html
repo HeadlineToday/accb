@@ -152,4 +152,46 @@
   }, true); // capture = true ensures we catch submits reliably
 </script>
 
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+  const socket = io();
+
+  // When a post is hidden/unhidden anywhere (admin or elsewhere)
+  socket.on("post_status_changed", ({ post_id, status }) => {
+    // In the public feed: remove hidden posts, re-add unhidden (or show)
+    const row = document.querySelector(`[data-post-id="${post_id}"]`);
+    if (row) {
+      // If the page filters to active-only, hide rows that become hidden
+      if (status === "hidden") {
+        row.style.display = "none";
+      } else {
+        row.style.display = "";
+      }
+
+      // If you show a status column, update its text
+      const statusCell = row.querySelector('[data-col="status"]');
+      if (statusCell) statusCell.textContent = status;
+    }
+
+    // In admin.html specifically: flip buttons inline (no refresh)
+    const adminRow = document.querySelector(`[data-admin-post-id="${post_id}"]`);
+    if (adminRow) {
+      const statusCell = adminRow.querySelector('[data-col="status"]');
+      if (statusCell) statusCell.textContent = status;
+
+      const hideForm = adminRow.querySelector('form[data-action="hide"]');
+      const unhideForm = adminRow.querySelector('form[data-action="unhide"]');
+
+      if (status === "hidden") {
+        if (hideForm) hideForm.style.display = "none";
+        if (unhideForm) unhideForm.style.display = "inline";
+      } else {
+        if (hideForm) hideForm.style.display = "inline";
+        if (unhideForm) unhideForm.style.display = "none";
+      }
+    }
+  });
+</script>
+
+
 {% endblock %}
