@@ -26,7 +26,7 @@
         <div class="tag">{{ p.anonymous_tag }}</div>
         <div class="time">{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
       </div>
-      <div class="status">{{ p.status }}</div>
+      <div class="status" data-col="status">{{ p.status }}</div>
     </header>
     {% if p.text %}
       <p class="text">{{ p.text }}</p>
@@ -54,12 +54,12 @@
   }, 4000);
 </script>
 
-<!-- Socket.IO for real-time -->
+<!-- Single Socket.IO include -->
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
   const socket = io();
 
-  // --- Helpers ---
+  // Helpers
   const pad = n => String(n).padStart(2, "0");
   const fmt = iso => {
     const d = new Date(iso);
@@ -67,18 +67,18 @@
   };
 
   function renderPostCard(p) {
+    const el = document.createElement("article");
+    el.className = "card";
+    el.setAttribute("data-post-id", p._id);
     const initials = (p.anonymous_tag || "St").slice(0, 2);
-    const article = document.createElement("article");
-    article.className = "card";
-    article.setAttribute("data-post-id", p._id);
-    article.innerHTML = `
+    el.innerHTML = `
       <header class="card-head">
         <div class="avatar">${initials}</div>
         <div>
           <div class="tag">${p.anonymous_tag || ""}</div>
           <div class="time">${fmt(p.created_at)}</div>
         </div>
-        <div class="status">${p.status || "active"}</div>
+        <div class="status" data-col="status">${p.status || "active"}</div>
       </header>
       ${p.text ? `<p class="text">${p.text}</p>` : ""}
       ${p.image_url ? `<img class="post-img" src="${p.image_url}" alt="post image">` : ""}
@@ -89,62 +89,64 @@
             <span class="like-text"> Like (${p.likes || 0})</span>
           </button>
         </form>
-      </footer>
-    `;
-    return article;
+      </footer>`;
+    return el;
   }
 
-  // --- Real-time: new posts ---
+  // New posts live
   socket.on("new_post", (p) => {
     const feed = document.getElementById("feed");
     if (feed) feed.prepend(renderPostCard(p));
   });
 
-  // --- Real-time: likes ---
+  // Likes live (count only)
   socket.on("like_update", data => {
     const btn = document.querySelector(`button.like-btn[data-post-id="${data.post_id}"]`);
     if (btn) {
-      const heart = btn.querySelector(".heart");
       const text = btn.querySelector(".like-text");
-      heart.style.color = data.liked ? "red" : "gray";
       text.textContent = ` Like (${data.likes})`;
     }
   });
 
-  // --- Like handler (delegated) ---
+  // Hide/Unhide live
+  socket.on("post_status_changed", ({ post_id, status }) => {
+    const card = document.querySelector(`[data-post-id="${post_id}"]`);
+    if (!card) return;
+    card.style.display = (status === "hidden") ? "none" : "";
+    const badge = card.querySelector('[data-col="status"]');
+    if (badge) badge.textContent = status;
+  });
+
+  // Like handler with optimistic UI
   document.getElementById("feed").addEventListener("submit", async (e) => {
     const form = e.target;
-    if (!form.matches(`form[action^="/like/"]`)) return;
+    if (!form.matches('form[action^="/like/"]')) return;
     e.preventDefault();
 
     const url = form.getAttribute("action");
-    const btn = form.querySelector("button.like-btn");
+    const btn = form.querySelector(".like-btn");
     const heart = btn.querySelector(".heart");
     const text = btn.querySelector(".like-text");
 
-    let current = parseInt(text.textContent.match(/\d+/)[0], 10);
-    const isLiked = heart.style.color === "red";
-    heart.style.color = isLiked ? "gray" : "red";
-    text.textContent = ` Like (${isLiked ? current - 1 : current + 1})`;
+    const current = parseInt(text.textContent.match(/\d+/)[0], 10);
+    const wasLiked = (heart.style.color === "red");
+
+    // optimistic
+    heart.style.color = wasLiked ? "gray" : "red";
+    text.textContent = ` Like (${wasLiked ? current - 1 : current + 1})`;
 
     try {
       const res = await fetch(url, { method: "POST" });
-      if (res.ok) {
-        const data = await res.json();
-        heart.style.color = data.liked ? "red" : "gray";
-        text.textContent = ` Like (${data.likes})`;
-      }
+      if (!res.ok) throw new Error(res.status);
+      const data = await res.json();
+      heart.style.color = data.liked ? "red" : "gray";
+      text.textContent = ` Like (${data.likes})`;
     } catch (err) {
-      console.error("Network error:", err);
+      // revert on failure
+      heart.style.color = wasLiked ? "red" : "gray";
+      text.textContent = ` Like (${current})`;
+      console.error("Like failed:", err);
     }
   }, true);
-
-  socket.on("toggle_post", function(post) {
-    const el = document.getElementById("post-" + post.id);
-    if (el) {
-      el.style.display = post.hidden ? "none" : "block";
-    }
-  });
-
 </script>
 {% endblock %}
