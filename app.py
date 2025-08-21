@@ -374,15 +374,19 @@ def admin_unhide_post():
 def delete_post(post_id):
     user = current_user()
     if not user or not user.get("is_admin"):  # Ensure only admins can delete
+        app.logger.warning(f"Unauthorized delete attempt by user: {user}")  # log failed auth
         abort(403)
 
     result = Posts.delete_one({"_id": ObjectId(post_id)})
     if result.deleted_count == 0:
         flash("Post not found.", "error")
+        app.logger.error(f"Delete failed: Post with id {post_id} not found.")
     else:
         flash("Post deleted successfully.", "success")
+        app.logger.info(f"Post deleted successfully: {post_id} by admin {user.get('_id')}")
 
     return redirect(url_for("admin_dashboard"))
+
 
 
 
