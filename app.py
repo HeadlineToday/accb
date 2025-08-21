@@ -26,7 +26,10 @@ FLASK_SECRET = os.getenv("FLASK_SECRET", "dev-secret")
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME", "anon_app")
 POST_COOLDOWN_SECONDS = int(os.getenv("POST_COOLDOWN_SECONDS", "120"))
-UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
+
+# Make UPLOAD_DIR absolute so Flask always serves the correct path
+UPLOAD_DIR = os.getenv("UPLOAD_DIR") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
+
 MAX_IMAGE_MB = int(os.getenv("MAX_IMAGE_MB", "5"))
 
 Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
@@ -340,30 +343,25 @@ def admin_hide_post():
     pid = request.form.get("post_id")
     Posts.update_one({"_id": ObjectId(pid)}, {"$set": {"status": "hidden"}})
     log_admin("hide_post", target=pid)
+
+    # Broadcast to ALL clients so UIs update without refresh
+    socketio.emit("post_status_changed", {"post_id": pid, "status": "hidden"})
+    # Fallback for form submit: keep your flash+redirect behaviour
     flash("Post hidden.", "ok")
     return redirect(url_for("admin_dashboard"))
 
 @app.post("/admin/unhide_post")
 def admin_unhide_post():
-    if not current_admin():
-        abort(403)
+    if not current_admin(): abort(403)
     pid = request.form.get("post_id")
     Posts.update_one({"_id": ObjectId(pid)}, {"$set": {"status": "active"}})
     log_admin("unhide_post", target=pid)
+
+    # Broadcast to ALL clients so UIs update without refresh
+    socketio.emit("post_status_changed", {"post_id": pid, "status": "active"})
+    # Fallback for form submit: keep your flash+redirect behaviour
     flash("Post unhidden.", "ok")
     return redirect(url_for("admin_dashboard"))
-
-@app.route("/hide/<post_id>", methods=["POST"])
-def hide_post(post_id):
-    Posts.update_one({"_id": ObjectId(post_id)}, {"$set": {"hidden": True}})
-    socketio.emit("post_hidden", {"post_id": post_id}, broadcast=True)
-    return jsonify({"success": True})
-
-@app.route("/unhide/<post_id>", methods=["POST"])
-def unhide_post(post_id):
-    Posts.update_one({"_id": ObjectId(post_id)}, {"$set": {"hidden": False}})
-    socketio.emit("post_unhidden", {"post_id": post_id}, broadcast=True)
-    return jsonify({"success": True})
 
 
 @app.post("/admin/ban_user")
