@@ -1,3 +1,5 @@
+here is the index.html - 
+
 {% extends "base.html" %}
 {% block content %}
 <section class="composer">
@@ -19,7 +21,7 @@
 
 <section class="feed" id="feed">
   {% for p in posts %}
-  <article class="card">
+  <article class="card" data-post-id="{{ p._id }}">
     <header class="card-head">
       <div class="avatar">{{ (p.anonymous_tag or 'St')[0:2] }}</div>
       <div>
@@ -50,20 +52,16 @@
 
 <script>
   setTimeout(() => {
-    const flashes = document.querySelectorAll(".flash");
-    flashes.forEach(flash => flash.remove());
-  }, 4000); // 3000ms = 3 seconds
+    document.querySelectorAll(".flash").forEach(el => el.remove());
+  }, 4000);
 </script>
 
-
-<!-- for real time post and like -->
-
-
+<!-- Socket.IO for real-time -->
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
   const socket = io();
 
-  // ------- Helpers -------
+  // --- Helpers ---
   const pad = n => String(n).padStart(2, "0");
   const fmt = iso => {
     const d = new Date(iso);
@@ -74,6 +72,7 @@
     const initials = (p.anonymous_tag || "St").slice(0, 2);
     const article = document.createElement("article");
     article.className = "card";
+    article.setAttribute("data-post-id", p._id);
     article.innerHTML = `
       <header class="card-head">
         <div class="avatar">${initials}</div>
@@ -81,46 +80,40 @@
           <div class="tag">${p.anonymous_tag || ""}</div>
           <div class="time">${fmt(p.created_at)}</div>
         </div>
-        <div class="status">active</div>
+        <div class="status">${p.status || "active"}</div>
       </header>
-      ${p.text ? `<p class="text"></p>` : ""}
+      ${p.text ? `<p class="text">${p.text}</p>` : ""}
       ${p.image_url ? `<img class="post-img" src="${p.image_url}" alt="post image">` : ""}
       <footer class="card-foot">
-        <form action="/like/${p.post_id}" method="post">
-          <button class="btn like-btn" type="submit" data-post-id="${p.post_id}">
+        <form action="/like/${p._id}" method="post">
+          <button class="btn like-btn" type="submit" data-post-id="${p._id}">
             <span class="heart" style="color:gray;">♥</span>
             <span class="like-text"> Like (${p.likes || 0})</span>
           </button>
         </form>
       </footer>
     `;
-    if (p.text) article.querySelector(".text").textContent = p.text;
     return article;
   }
 
-  // ------- Real-time: new posts -------
+  // --- Real-time: new posts ---
   socket.on("new_post", (p) => {
     const feed = document.getElementById("feed");
-    if (!feed) return;
-    const card = renderPostCard(p);
-    feed.prepend(card); // newest first
+    if (feed) feed.prepend(renderPostCard(p));
   });
 
-  // ------- Real-time: likes (from server) -------
+  // --- Real-time: likes ---
   socket.on("like_update", data => {
     const btn = document.querySelector(`button.like-btn[data-post-id="${data.post_id}"]`);
     if (btn) {
       const heart = btn.querySelector(".heart");
       const text = btn.querySelector(".like-text");
-      // `liked` is only guaranteed in HTTP response for the clicker; for others just update count
-      if (typeof data.liked === "boolean") {
-        heart.style.color = data.liked ? "red" : "gray";
-      }
+      heart.style.color = data.liked ? "red" : "gray";
       text.textContent = ` Like (${data.likes})`;
     }
   });
 
-  // ------- Like handler with event delegation (works for dynamic posts) -------
+  // --- Like handler (delegated) ---
   document.getElementById("feed").addEventListener("submit", async (e) => {
     const form = e.target;
     if (!form.matches(`form[action^="/like/"]`)) return;
@@ -131,7 +124,6 @@
     const heart = btn.querySelector(".heart");
     const text = btn.querySelector(".like-text");
 
-    // Optimistic UI
     let current = parseInt(text.textContent.match(/\d+/)[0], 10);
     const isLiked = heart.style.color === "red";
     heart.style.color = isLiked ? "gray" : "red";
@@ -143,55 +135,26 @@
         const data = await res.json();
         heart.style.color = data.liked ? "red" : "gray";
         text.textContent = ` Like (${data.likes})`;
-      } else {
-        console.error("Like failed:", res.status);
       }
     } catch (err) {
       console.error("Network error:", err);
     }
-  }, true); // capture = true ensures we catch submits reliably
-</script>
+  }, true);
 
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script>
-  const socket = io();
-
-  // When a post is hidden/unhidden anywhere (admin or elsewhere)
-  socket.on("post_status_changed", ({ post_id, status }) => {
-    // In the public feed: remove hidden posts, re-add unhidden (or show)
-    const row = document.querySelector(`[data-post-id="${post_id}"]`);
-    if (row) {
-      // If the page filters to active-only, hide rows that become hidden
-      if (status === "hidden") {
-        row.style.display = "none";
-      } else {
-        row.style.display = "";
-      }
-
-      // If you show a status column, update its text
-      const statusCell = row.querySelector('[data-col="status"]');
-      if (statusCell) statusCell.textContent = status;
-    }
-
-    // In admin.html specifically: flip buttons inline (no refresh)
-    const adminRow = document.querySelector(`[data-admin-post-id="${post_id}"]`);
-    if (adminRow) {
-      const statusCell = adminRow.querySelector('[data-col="status"]');
-      if (statusCell) statusCell.textContent = status;
-
-      const hideForm = adminRow.querySelector('form[data-action="hide"]');
-      const unhideForm = adminRow.querySelector('form[data-action="unhide"]');
-
-      if (status === "hidden") {
-        if (hideForm) hideForm.style.display = "none";
-        if (unhideForm) unhideForm.style.display = "inline";
-      } else {
-        if (hideForm) hideForm.style.display = "inline";
-        if (unhideForm) unhideForm.style.display = "none";
-      }
+  // --- Real-time: hide/unhide posts ---
+  socket.on("post_hidden", data => {
+    const post = document.querySelector(`article[data-post-id="${data.post_id}"]`);
+    if (post) {
+      post.style.display = "none"; // or add a "hidden" class if you prefer
     }
   });
+
+  socket.on("post_unhidden", data => {
+    const post = document.querySelector(`article[data-post-id="${data.post_id}"]`);
+    if (post) {
+      post.style.display = ""; // restore visibility
+    }
+  });
+
 </script>
-
-
 {% endblock %}
