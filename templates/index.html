@@ -1,5 +1,3 @@
-here is the index.html - 
-
 {% extends "base.html" %}
 {% block content %}
 <section class="composer">
@@ -39,7 +37,7 @@ here is the index.html -
     <footer class="card-foot">
       <form action="{{ url_for('like', post_id=p._id) }}" method="post">
         <button class="btn like-btn" type="submit" data-post-id="{{ p._id }}">
-          <span class="heart" style="color:gray;">♥</span>
+          <span class="heart" style="color:{% if user and user._id|string in p.liked_by %}red{% else %}gray{% endif %};">♥</span>
           <span class="like-text"> Like ({{ p.likes or 0 }})</span>
         </button>
       </form>
@@ -87,7 +85,7 @@ here is the index.html -
       <footer class="card-foot">
         <form action="/like/${p._id}" method="post">
           <button class="btn like-btn" type="submit" data-post-id="${p._id}">
-            <span class="heart" style="color:{{ 'red' if user.id in p.liked_by else 'gray' }};">♥</span>
+            <span class="heart" style="color:gray;">♥</span>
             <span class="like-text"> Like (${p.likes || 0})</span>
           </button>
         </form>
