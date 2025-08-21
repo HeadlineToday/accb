@@ -381,7 +381,6 @@ def delete_post(post_id):
     else:
         flash("Post deleted successfully.", "success")
       
-    return redirect(url_for("admin_dashboard"))
 
 
 
