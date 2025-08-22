@@ -31,5 +31,20 @@
   <main class="container">
     {% block content %}{% endblock %}
   </main>
+
+
+<script>
+async function deletePost(postId) {
+  const response = await fetch(`/delete_post/${postId}`, { method: "DELETE" });
+  const result = await response.json();
+
+  if (result.success) {
+    document.getElementById(`post-${postId}`).remove(); // remove from DOM
+  } else {
+    alert("Error deleting post!");
+  }
+}
+</script>
+
 </body>
 </html>
