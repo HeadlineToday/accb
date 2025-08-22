@@ -10,3 +10,4 @@ dnspython
 gunicorn
 flask-socketio
 eventlet
+supabase
