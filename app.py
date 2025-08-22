@@ -376,11 +376,9 @@ def delete_post(post_id):
 
     result = Posts.delete_one({"_id": ObjectId(post_id)})
     if result.deleted_count == 0:
-        flash("Post not found.", "error")
-        app.logger.error(f"Delete failed: Post with id {post_id} not found.")
-    else:
-        flash("Post deleted successfully.", "success")
-        return redirect(url_for("admin_dashboard"))
+        return jsonify({"error": "Post not found"}), 404
+
+    return jsonify({"success": True, "post_id": post_id})
 
 
 
