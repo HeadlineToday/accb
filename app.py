@@ -384,15 +384,34 @@ def admin_unhide_post():
 
 @app.route("/delete/<post_id>", methods=["POST"])
 def delete_post(post_id):
-    if not current_admin(): abort(403)  # Forbidden if not admin
+    if not current_admin():
+        abort(403)  # Forbidden if not admin
 
-    # Delete post from DB
+    # Find post first (to get image URL before deleting from DB)
+    post = Posts.find_one({"_id": ObjectId(post_id)})
+    if not post:
+        abort(404)
+
+    # If post has an image, remove it from Supabase
+    image_url = post.get("image_url")
+    if image_url:
+        try:
+            # Supabase public URL looks like:
+            # https://your-project.supabase.co/storage/v1/object/public/<bucket>/posts/<filename>
+            # We just need the path after the bucket name
+            file_path = "/".join(image_url.split(f"{SUPABASE_BUCKET}/")[-1:])
+            supabase.storage.from_(SUPABASE_BUCKET).remove([f"posts/{file_path}"])
+        except Exception as e:
+            app.logger.error(f"Failed to delete image from Supabase: {e}")
+
+    # Delete the post record from DB
     result = Posts.delete_one({"_id": ObjectId(post_id)})
     if result.deleted_count == 0:
         abort(404)  # Post not found
 
     flash("Post deleted successfully!", "success")
     return redirect(url_for("admin_dashboard"))
+
 
 
 
