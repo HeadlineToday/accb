@@ -156,5 +156,21 @@
       console.error("Like failed:", err);
     }
   }, true);
+
+  
+function deletePost(postId) {
+  fetch(`/delete_post/${postId}`, {
+    method: "POST"
+  })
+  .then(response => {
+    if (response.ok) {
+      document.getElementById(`post-${postId}`).remove(); // Remove post from feed instantly
+    } else {
+      alert("Error deleting post");
+    }
+  });
+}
+
+
 </script>
 {% endblock %}
