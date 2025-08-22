@@ -143,23 +143,6 @@
     tbody.prepend(tr);
   });
   
-  async function deletePost(postId) {
-    if (!confirm("Are you sure you want to delete this post?")) return;
-  
-    try {
-      const res = await fetch(`/admin/delete/${postId}`, { method: "POST" });
-      const data = await res.json();
-  
-      if (data.success) {
-        document.querySelector(`[data-admin-post-id="${postId}"]`).remove();
-      } else {
-        alert(data.error || "Failed to delete post");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete post");
-    }
-  }
 
 
 
