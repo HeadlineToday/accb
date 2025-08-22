@@ -117,6 +117,14 @@
     if (badge) badge.textContent = status;
   });
 
+  // 🔴 Delete live
+  socket.on("post_deleted", ({ post_id }) => {
+    const card = document.querySelector(`[data-post-id="${post_id}"]`);
+    if (card) {
+      card.remove();
+    }
+  });
+
   // Like handler with optimistic UI
   document.getElementById("feed").addEventListener("submit", async (e) => {
     const form = e.target;
