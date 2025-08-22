@@ -1,4 +1,5 @@
 import os, re, hashlib, uuid
+import io
 import filetype
 from supabase import create_client, Client
 from datetime import datetime, timedelta
