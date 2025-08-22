@@ -370,15 +370,18 @@ def admin_unhide_post():
     flash("Post unhidden.", "ok")
     return redirect(url_for("admin_dashboard"))
 
-@app.route("/admin/delete/<post_id>", methods=["POST"])
+@app.route("/delete/<post_id>", methods=["POST"])
 def delete_post(post_id):
-    if not current_admin(): abort(403)
+    if not current_admin(): abort(403)  # Forbidden if not admin
 
+    # Delete post from DB
     result = Posts.delete_one({"_id": ObjectId(post_id)})
     if result.deleted_count == 0:
-        return jsonify({"error": "Post not found"}), 404
+        abort(404)  # Post not found
 
-    return jsonify({"success": True, "post_id": post_id})
+    flash("Post deleted successfully!", "success")
+    return redirect(url_for("admin_dashboard"))
+
 
 
 
