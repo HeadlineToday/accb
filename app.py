@@ -1,5 +1,6 @@
 import os, re, hashlib, uuid
 import filetype
+from supabase import create_client, Client
 from datetime import datetime, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
@@ -37,6 +38,12 @@ Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 app.secret_key = FLASK_SECRET
 socketio = SocketIO(app, async_mode="eventlet", cors_allowed_origins="*")
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET", "uploads")
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 
@@ -204,9 +211,12 @@ def create_post():
 
         ext = os.path.splitext(secure_filename(image_file.filename))[1].lower()
         fname = f"{uuid.uuid4().hex}{ext}"
-        save_path = os.path.join(UPLOAD_DIR, fname)
-        image_file.save(save_path)
-        image_url = url_for("uploads", filename=fname)
+        file_bytes = image_file.read()
+        supabase.storage.from_(SUPABASE_BUCKET).upload(
+            f"posts/{fname}", file_bytes, {"content-type": image_file.mimetype}
+        )
+        image_url = f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/posts/{fname}"
+
 
     if not text and not image_url:
         flash("Post cannot be empty.", "error")
