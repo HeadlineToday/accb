@@ -380,8 +380,7 @@ def delete_post(post_id):
         app.logger.error(f"Delete failed: Post with id {post_id} not found.")
     else:
         flash("Post deleted successfully.", "success")
-        return jsonify({"success": True, "post_id": post_id})
-
+        return redirect(url_for("admin_dashboard"))
 
 
 
