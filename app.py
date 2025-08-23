@@ -266,7 +266,11 @@ def like(post_id):
         abort(401)
 
         # Stop banned or muted users
-    if current_user.is_banned or current_user.is_muted:
+    if user.get("status") == "banned":
+        return jsonify({"success": False, "error": "Action not allowed"}), 403
+
+    mute_until = user.get("mute_until")
+    if mute_until and mute_until > datetime.utcnow():
         return jsonify({"success": False, "error": "Action not allowed"}), 403
 
 
