@@ -145,18 +145,32 @@
 <!-- Single Socket.IO include -->
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
-  // Tab Switching
+   // Tab Switching with Remember
   const tabButtons = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
 
+  function activateTab(tabName) {
+    tabButtons.forEach(b => b.classList.remove("active"));
+    tabContents.forEach(c => c.classList.remove("active"));
+    const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+    const activeContent = document.getElementById(tabName);
+    if (activeBtn && activeContent) {
+      activeBtn.classList.add("active");
+      activeContent.classList.add("active");
+      localStorage.setItem("adminLastTab", tabName); // save selection
+    }
+  }
+
+  // On load: check saved tab
+  const savedTab = localStorage.getItem("adminLastTab") || "posts";
+  activateTab(savedTab);
+
   tabButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-      tabButtons.forEach(b => b.classList.remove("active"));
-      tabContents.forEach(c => c.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.tab).classList.add("active");
+      activateTab(btn.dataset.tab);
     });
   });
+
 
   const socket = io();
   // === existing Socket.IO logic unchanged ===
@@ -208,6 +222,17 @@
       </td>`;
     tbody.prepend(tr);
   });
+
+  socket.on("user_unbanned", ({ user_id }) => {
+    const row = document.querySelector(`[data-user-id="${user_id}"]`);
+    if (!row) return;
+    row.querySelector("td:nth-child(3)").textContent = "active"; // status col
+    const banForm = row.querySelector("form[action*='ban_user']");
+    const unbanForm = row.querySelector("form[action*='unban_user']");
+    if (banForm) banForm.style.display = "inline";
+    if (unbanForm) unbanForm.style.display = "none";
+  });
+
 
   document.addEventListener("submit", async (e) => {
     const form = e.target;
