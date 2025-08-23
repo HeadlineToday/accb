@@ -265,6 +265,11 @@ def like(post_id):
     if not user:
         abort(401)
 
+        # Stop banned or muted users
+    if current_user.is_banned or current_user.is_muted:
+        return jsonify({"success": False, "error": "Action not allowed"}), 403
+
+
     post = Posts.find_one({"_id": ObjectId(post_id), "status": "active"})
     if not post:
         abort(404)
