@@ -424,6 +424,29 @@ def admin_ban_user():
     flash("User banned.", "ok")
     return redirect(url_for("admin_dashboard"))
 
+@app.route("/admin/unban_user", methods=["POST"])
+def admin_unban_user():
+    if not current_admin():
+        abort(403)
+
+    user_id = request.form.get("user_id")
+    if not user_id:
+        flash("Invalid user ID", "error")
+        return redirect(url_for("admin_dashboard"))
+
+    result = Users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"status": "active"}}
+    )
+
+    if result.modified_count > 0:
+        flash("User unbanned successfully!", "success")
+    else:
+        flash("Failed to unban user.", "error")
+
+    return redirect(url_for("admin_dashboard"))
+
+
 @app.post("/admin/mute_user")
 def admin_mute_user():
     if not current_admin(): abort(403)
