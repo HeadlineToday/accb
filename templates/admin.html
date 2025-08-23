@@ -80,7 +80,7 @@
 
             {% if u.mute_until and u.mute_until > now %}
               <!-- Unmute -->
-              <form method="post" action="{{ url_for('admin_unmute_user', user_id=u._id) }}" style="display:inline">
+              <form method="post" action="{{ url_for('admin_unmute_user') }}" style="display:inline">
                 <input type="hidden" name="user_id" value="{{ u._id }}">
                 <button class="btn success" type="submit">Unmute</button>
               </form>
