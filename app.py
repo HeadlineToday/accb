@@ -474,7 +474,7 @@ def admin_mute_user():
 def admin_unmute_user():
     if not session.get("is_admin"):
         flash("Unauthorized action", "error")
-        return redirect(url_for("index"))
+        return redirect(url_for("home"))
 
     uid = request.form.get("user_id")
     user = User.query.get_or_404(uid)
