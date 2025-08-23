@@ -214,10 +214,8 @@ def create_post():
         fname = f"{uuid.uuid4().hex}{ext}"
         file_bytes = image_file.read()
         supabase.storage.from_(SUPABASE_BUCKET).upload(
-            f"posts/{fname}", file_bytes, {"content-type": image_file.mimetype}
-)
-
-
+            f"posts/{fname}", file_bytes, {"content-type": image_file.mimetype})
+        image_url = f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/posts/{fname}"
 
 
     if not text and not image_url:
