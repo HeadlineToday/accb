@@ -213,7 +213,6 @@ def create_post():
         ext = os.path.splitext(secure_filename(image_file.filename))[1].lower()
         fname = f"{uuid.uuid4().hex}{ext}"
         file_bytes = image_file.read()
-        file_bytes = image_file.read()
         supabase.storage.from_(SUPABASE_BUCKET).upload(
             f"posts/{fname}", file_bytes, {"content-type": image_file.mimetype}
 )
