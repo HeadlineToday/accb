@@ -463,6 +463,26 @@ def admin_mute_user():
     flash(f"User muted for {minutes} minutes.", "ok")
     return redirect(url_for("admin_dashboard"))
 
+
+# --- UNMUTE ROUTE ---
+@app.route('/admin/unmute/<int:user_id>', methods=['POST'])
+def admin_unmute_user(user_id):
+    # Only admin can unmute
+    if not session.get("is_admin"):
+        flash("Unauthorized action", "error")
+        return redirect(url_for("index"))
+
+    user = User.query.get_or_404(user_id)
+    if not user.is_muted:
+        flash("User is not muted", "info")
+    else:
+        user.is_muted = False
+        db.session.commit()
+        flash(f"User {user.id} has been unmuted.", "success")
+
+    return redirect(url_for("admin_dashboard"))
+
+
 @app.post("/admin/promote_admin")
 def admin_promote():
     admin = current_admin()
