@@ -29,8 +29,6 @@ MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME", "anon_app")
 POST_COOLDOWN_SECONDS = int(os.getenv("POST_COOLDOWN_SECONDS", "120"))
 
-# Make UPLOAD_DIR absolute so Flask always serves the correct path
-UPLOAD_DIR = os.getenv("UPLOAD_DIR") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
 
 MAX_IMAGE_MB = int(os.getenv("MAX_IMAGE_MB", "5"))
 
@@ -154,9 +152,6 @@ def bootstrap_and_ensure_user():
     if request.endpoint not in ("static", "uploads", "admin_login", "admin_logout"):
         ensure_anon_user()
 
-@app.route("/uploads/<path:filename>")
-def uploads(filename):
-    return send_from_directory(UPLOAD_DIR, filename)
 
 # --- Views ---
 @app.route("/")
