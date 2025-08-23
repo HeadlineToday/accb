@@ -52,11 +52,17 @@
       <thead><tr><th>Tag</th><th>Role</th><th>Status</th><th>Mute Until</th><th>Act</th></tr></thead>
       <tbody>
       {% for u in users %}
-        <tr>
+        <tr data-user-id="{{ u._id }}">
           <td>{{ u.anonymous_tag or u.email }}</td>
           <td>{{ u.role }}</td>
           <td>{{ u.status }}</td>
-          <td>{% if u.mute_until %}{{ u.mute_until.strftime('%Y-%m-%d %H:%M') }}{% else %}-{% endif %}</td>
+          <td>
+            {% if u.mute_until %}
+              {{ u.mute_until.strftime('%Y-%m-%d %H:%M') }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
           <td>
             {% if u.status != "banned" %}
               <!-- Ban -->
@@ -71,13 +77,21 @@
                 <button class="btn success" type="submit">Unban</button>
               </form>
             {% endif %}
-            
-            <!-- Mute -->
-            <form method="post" action="{{ url_for('admin_mute_user') }}" style="display:inline">
-              <input type="hidden" name="user_id" value="{{ u._id }}">
-              <input type="number" name="minutes" value="30" min="1" class="small">
-              <button class="btn" type="submit">Mute</button>
-            </form>
+
+            {% if u.mute_until and u.mute_until > now %}
+              <!-- Unmute -->
+              <form method="post" action="{{ url_for('admin_unmute_user') }}" style="display:inline">
+                <input type="hidden" name="user_id" value="{{ u._id }}">
+                <button class="btn success" type="submit">Unmute</button>
+              </form>
+            {% else %}
+              <!-- Mute -->
+              <form method="post" action="{{ url_for('admin_mute_user') }}" style="display:inline">
+                <input type="hidden" name="user_id" value="{{ u._id }}">
+                <input type="number" name="minutes" value="30" min="1" class="small">
+                <button class="btn" type="submit">Mute</button>
+              </form>
+            {% endif %}
 
             <!-- Role change -->
             <form method="post" action="{{ url_for('admin_promote') }}" style="display:inline">
@@ -96,6 +110,7 @@
     </table>
   </section>
 </div>
+
 
 
 <div id="banned" class="tab-content">
