@@ -472,7 +472,8 @@ def admin_mute_user():
 # --- UNMUTE ROUTE ---
 @app.route('/admin/unmute_user', methods=['POST'])
 def admin_unmute_user():
-    if not session.get("is_admin"):
+    if not current_admin():
+        abort(403)
         flash("Unauthorized action", "error")
         return redirect(url_for("home"))
 
