@@ -158,7 +158,7 @@ def home():
     user = current_user()
     # Get active posts
     posts = list(Posts.find({"status": "active"}).sort("created_at", DESCENDING).limit(100))
-    return render_template("home", posts=posts, user=user, cooldown=POST_COOLDOWN_SECONDS)
+    return render_template("index.html", posts=posts, user=user, cooldown=POST_COOLDOWN_SECONDS)
 
 @app.route("/post", methods=["POST"])
 def create_post():
