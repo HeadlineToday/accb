@@ -32,7 +32,6 @@ POST_COOLDOWN_SECONDS = int(os.getenv("POST_COOLDOWN_SECONDS", "120"))
 
 MAX_IMAGE_MB = int(os.getenv("MAX_IMAGE_MB", "5"))
 
-Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 app.secret_key = os.getenv("SECRET_KEY", "fallback")
