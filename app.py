@@ -356,7 +356,7 @@ def admin_dashboard():
         posts=posts,
         users=users,
         banned=banned,
-        admin=admin
+        admin=admin,
         now=datetime.utcnow()   # 🔑 added this
     )
 
