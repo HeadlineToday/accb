@@ -470,7 +470,7 @@ def admin_mute_user():
 
 
 # --- UNMUTE ROUTE ---
-@app.route('/admin/unmute/<int:user_id>', methods=['POST'])
+@app.route('/admin/unmute_user', methods=['POST'])
 def admin_unmute_user(user_id):
     # Only admin can unmute
     if not session.get("is_admin"):
