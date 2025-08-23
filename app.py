@@ -471,13 +471,13 @@ def admin_mute_user():
 
 # --- UNMUTE ROUTE ---
 @app.route('/admin/unmute_user', methods=['POST'])
-def admin_unmute_user(user_id):
-    # Only admin can unmute
+def admin_unmute_user():
     if not session.get("is_admin"):
         flash("Unauthorized action", "error")
         return redirect(url_for("index"))
 
-    user = User.query.get_or_404(user_id)
+    uid = request.form.get("user_id")
+    user = User.query.get_or_404(uid)
     if not user.is_muted:
         flash("User is not muted", "info")
     else:
