@@ -58,15 +58,28 @@
           <td>{{ u.status }}</td>
           <td>{% if u.mute_until %}{{ u.mute_until.strftime('%Y-%m-%d %H:%M') }}{% else %}-{% endif %}</td>
           <td>
-            <form method="post" action="{{ url_for('admin_ban_user') }}" style="display:inline">
-              <input type="hidden" name="user_id" value="{{ u._id }}">
-              <button class="btn danger" type="submit">Ban</button>
-            </form>
+            {% if u.status != "banned" %}
+              <!-- Ban -->
+              <form method="post" action="{{ url_for('admin_ban_user') }}" style="display:inline">
+                <input type="hidden" name="user_id" value="{{ u._id }}">
+                <button class="btn danger" type="submit">Ban</button>
+              </form>
+            {% else %}
+              <!-- Unban -->
+              <form method="post" action="{{ url_for('admin_unban_user') }}" style="display:inline">
+                <input type="hidden" name="user_id" value="{{ u._id }}">
+                <button class="btn success" type="submit">Unban</button>
+              </form>
+            {% endif %}
+            
+            <!-- Mute -->
             <form method="post" action="{{ url_for('admin_mute_user') }}" style="display:inline">
               <input type="hidden" name="user_id" value="{{ u._id }}">
               <input type="number" name="minutes" value="30" min="1" class="small">
               <button class="btn" type="submit">Mute</button>
             </form>
+
+            <!-- Role change -->
             <form method="post" action="{{ url_for('admin_promote') }}" style="display:inline">
               <input type="hidden" name="user_id" value="{{ u._id }}">
               <select name="role">
@@ -83,6 +96,7 @@
     </table>
   </section>
 </div>
+
 
 <div id="banned" class="tab-content">
   <section>
