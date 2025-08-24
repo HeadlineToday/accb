@@ -47,12 +47,7 @@ Banned = db.banned_words
 AdminLogs = db.admin_logs
 
 
-@app.before_request
-def bootstrap_and_ensure_user():
-    first_boot_seed_admin()
-    # Do not force anon for static/admin auth calls to avoid recursion
-    if request.endpoint not in ("static", "uploads", "admin_login", "admin_logout"):
-        ensure_anon_user()
+
 
 
 
@@ -148,7 +143,12 @@ def first_boot_seed_admin():
                 pass
         print("[seed] Added default banned words")
 
-
+@app.before_request
+def bootstrap_and_ensure_user():
+    first_boot_seed_admin()
+    # Do not force anon for static/admin auth calls to avoid recursion
+    if request.endpoint not in ("static", "uploads", "admin_login", "admin_logout"):
+        ensure_anon_user()
 
 
 # --- Views ---
