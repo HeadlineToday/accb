@@ -172,12 +172,5 @@ function deletePost(postId) {
   });
 }
 
-transports: ["websocket"], // avoid polling
-  });
-
-socket.on("connect", () => {
-    console.log("Connected via WebSocket only!");
-  });
-
 </script>
 {% endblock %}
