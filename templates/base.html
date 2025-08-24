@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light"> <!-- 🔑 add data-theme attribute -->
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,15 +8,26 @@
 </head>
 <body>
   <nav class="nav">
+    <!-- 🔑 Hamburger + theme toggle -->
+    <button id="theme-toggle" class="icon-btn">🌙</button>
+    <button id="hamburger" class="icon-btn">☰</button>
     <div class="brand">CampusAnon</div>
     <div class="spacer"></div>
-    {% if session.get('admin_id') %}
-      <a class="btn" href="{{ url_for('admin_dashboard') }}">Admin</a>
-      <a class="btn" href="{{ url_for('admin_logout') }}">Logout</a>
-    {% else %}
-      <a class="btn" href="{{ url_for('admin_login') }}">Admin Login</a>
-    {% endif %}
   </nav>
+
+  <!-- 🔑 Sidebar -->
+  <div id="sidebar" class="sidebar">
+    <button id="close-sidebar" class="icon-btn">✕</button>
+    <ul>
+      {% if session.get('admin_id') %}
+        <li><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+        <li><a href="{{ url_for('admin_logout') }}">Logout</a></li>
+      {% else %}
+        <li><a href="{{ url_for('admin_login') }}">Admin Login</a></li>
+      {% endif %}
+    </ul>
+  </div>
+  <div id="overlay" class="overlay"></div>
 
   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
@@ -32,5 +43,45 @@
     {% block content %}{% endblock %}
   </main>
 
+  <!-- 🔑 Scripts -->
+  <script>
+    // Sidebar toggle
+    const hamburger = document.getElementById("hamburger");
+    const sidebar = document.getElementById("sidebar");
+    const closeSidebar = document.getElementById("close-sidebar");
+    const overlay = document.getElementById("overlay");
+
+    hamburger.addEventListener("click", () => {
+      sidebar.classList.add("open");
+      overlay.classList.add("show");
+    });
+    closeSidebar.addEventListener("click", () => {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+    });
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+    });
+
+    // Theme toggle
+    const themeToggle = document.getElementById("theme-toggle");
+    const htmlTag = document.documentElement;
+
+    function setTheme(theme) {
+      htmlTag.setAttribute("data-theme", theme);
+      localStorage.setItem("theme", theme);
+      themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
+    }
+
+    themeToggle.addEventListener("click", () => {
+      const newTheme = htmlTag.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      setTheme(newTheme);
+    });
+
+    // On load, restore theme
+    const savedTheme = localStorage.getItem("theme") || "light";
+    setTheme(savedTheme);
+  </script>
 </body>
 </html>
