@@ -1,5 +1,4 @@
 import os, re, hashlib, uuid
-import io
 import filetype
 from supabase import create_client, Client
 from datetime import datetime, timedelta
@@ -15,10 +14,6 @@ from werkzeug.utils import secure_filename
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from bson import ObjectId
 
-import threading
-import http.server
-import socketserver
-from http import HTTPStatus
 
 load_dotenv()
 
