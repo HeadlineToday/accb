@@ -47,6 +47,15 @@ Banned = db.banned_words
 AdminLogs = db.admin_logs
 
 
+# Find posts with old /uploads/ paths
+old_posts = Posts.find({"image_url": {"$regex": r"^/uploads/"}})
+for post in old_posts:
+    old_url = post["image_url"]  # e.g. /uploads/abc123.png
+    filename = old_url.split("/")[-1]
+    new_url = f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/posts/{filename}"
+    Posts.update_one({"_id": post["_id"]}, {"$set": {"image_url": new_url}})
+    print(f"Updated {post['_id']} → {new_url}")
+
 @app.before_request
 def bootstrap_and_ensure_user():
     first_boot_seed_admin()
