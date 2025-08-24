@@ -3,11 +3,10 @@ import io
 import filetype
 from supabase import create_client, Client
 from datetime import datetime, timedelta
-from pathlib import Path
 from dotenv import load_dotenv
 from flask import (
     Flask, request, render_template, redirect, url_for,
-    session, jsonify, send_from_directory, abort, flash
+    session, jsonify, abort, flash
 )
 from flask_socketio import SocketIO, emit
 
@@ -470,23 +469,24 @@ def admin_mute_user():
 
 
 # --- UNMUTE ROUTE ---
-@app.route('/admin/unmute_user', methods=['POST'])
+@app.post("/admin/unmute_user")
 def admin_unmute_user():
     if not current_admin():
         abort(403)
-        flash("Unauthorized action", "error")
-        return redirect(url_for("home"))
 
     uid = request.form.get("user_id")
-    user = User.query.get_or_404(uid)
-    if not user.is_muted:
-        flash("User is not muted", "info")
-    else:
-        user.is_muted = False
-        db.session.commit()
-        flash(f"User {user.id} has been unmuted.", "success")
+    user = Users.find_one({"_id": ObjectId(uid)})
+    if not user:
+        flash("User not found", "error")
+        return redirect(url_for("admin_dashboard"))
 
+    Users.update_one(
+        {"_id": ObjectId(uid)},
+        {"$set": {"status": "active", "mute_until": None}}
+    )
+    flash(f"User {uid} has been unmuted.", "success")
     return redirect(url_for("admin_dashboard"))
+
 
 
 @app.post("/admin/promote_admin")
