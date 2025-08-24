@@ -341,8 +341,16 @@ def admin_dashboard():
     admin = current_admin()
     if not admin:
         return redirect(url_for("admin_login"))
+
     posts = list(Posts.find({}).sort("created_at", DESCENDING).limit(200))
-    users = list(Users.find({}).sort("_id", DESCENDING).limit(200))
+
+    # Users sorted by most recent post or creation
+    users = list(
+        Users.find({})
+        .sort([("last_post_at", DESCENDING), ("created_at", DESCENDING)])
+        .limit(200)
+    )
+
     banned = list(Banned.find({}).sort("word", ASCENDING))
     return render_template(
         "admin.html",
@@ -350,8 +358,9 @@ def admin_dashboard():
         users=users,
         banned=banned,
         admin=admin,
-        now=datetime.utcnow()   # 🔑 added this
+        now=datetime.utcnow()
     )
+
 
 def log_admin(action, target=None, extra=None):
     ad = current_admin()
