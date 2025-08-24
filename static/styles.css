@@ -139,3 +139,47 @@ body {
 .chip{background:#0f1319;border:1px solid #1f2633;border-radius:16px;padding:6px 8px;display:flex;gap:8px;align-items:center}
 .chip .x{background:transparent;border:none;color:var(--muted);cursor:pointer}
 .small{max-width:80px}
+
+
+/* ✅ Permanent Sidebar (only for desktop) */
+.permanent-sidebar {
+  position: fixed;
+  top: 60px; /* below top navbar */
+  left: 0;
+  width: 60px;
+  height: 100%;
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  border-right: 1px solid #ddd;
+}
+
+.permanent-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.permanent-sidebar li {
+  margin: 20px 0;
+}
+
+.permanent-sidebar a {
+  font-size: 22px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.permanent-sidebar a:hover {
+  color: var(--primary);
+}
+
+/* Hide permanent sidebar on mobile */
+@media (max-width: 768px) {
+  .permanent-sidebar {
+    display: none;
+  }
+}
+
