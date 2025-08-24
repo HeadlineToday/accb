@@ -342,7 +342,7 @@ def admin_dashboard():
     if not admin:
         return redirect(url_for("admin_login"))
     posts = list(Posts.find({}).sort("created_at", DESCENDING).limit(200))
-    users = list(Users.find({}).sort("created_at", DESCENDING).limit(200))
+    users = list(Users.find({}).sort("_id", DESCENDING).limit(200))
     banned = list(Banned.find({}).sort("word", ASCENDING))
     return render_template(
         "admin.html",
