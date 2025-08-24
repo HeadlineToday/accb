@@ -36,6 +36,106 @@ textarea{width:100%;background:#0f1319;border:1px solid #1f2633;color:var(--text
 @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
 .row{display:flex;gap:8px;align-items:center;margin:8px 0}
 .chips{display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:8px 0;list-style:none}
+
+/* === Light & Dark Mode === */
+:root[data-theme="light"] {
+  --bg: #f8f9fa;
+  --card: #ffffff;
+  --muted: #6c757d;
+  --text: #212529;
+  --primary: #0d6efd;
+  --danger: #dc3545;
+  --ok: #198754;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b0d10;
+  --card: #13171d;
+  --muted: #9aa4b2;
+  --text: #e6ebf2;
+  --primary: #6ea8fe;
+  --danger: #ff6b6b;
+  --ok: #4ade80;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+}
+
+/* === Icon Buttons (Hamburger + Theme Toggle) === */
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* === Sidebar === */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px; /* hidden */
+  width: 240px;
+  height: 100%;
+  background: var(--card);
+  border-right: 1px solid #1e2430;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  padding: 20px;
+  transition: left 0.3s ease;
+  z-index: 1001;
+}
+.sidebar.open {
+  left: 0;
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+.sidebar ul li {
+  margin-bottom: 12px;
+}
+.sidebar ul li a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+}
+.sidebar ul li a:hover {
+  color: var(--primary);
+}
+
+/* Close button inside sidebar */
+#close-sidebar {
+  display: block;
+  margin-left: auto;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+/* === Overlay behind sidebar === */
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+}
+.overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
 .chip{background:#0f1319;border:1px solid #1f2633;border-radius:16px;padding:6px 8px;display:flex;gap:8px;align-items:center}
 .chip .x{background:transparent;border:none;color:var(--muted);cursor:pointer}
 .small{max-width:80px}
