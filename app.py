@@ -51,6 +51,16 @@ Posts = db.posts
 Banned = db.banned_words
 AdminLogs = db.admin_logs
 
+
+@app.before_request
+def bootstrap_and_ensure_user():
+    first_boot_seed_admin()
+    # Do not force anon for static/admin auth calls to avoid recursion
+    if request.endpoint not in ("static", "uploads", "admin_login", "admin_logout"):
+        ensure_anon_user()
+
+
+
 # --- Helpers ---
 def get_ip_hash():
     ip = request.headers.get("X-Forwarded-For", request.remote_addr) or "0.0.0.0"
@@ -143,12 +153,7 @@ def first_boot_seed_admin():
                 pass
         print("[seed] Added default banned words")
 
-@app.before_request
-def bootstrap_and_ensure_user():
-    first_boot_seed_admin()
-    # Do not force anon for static/admin auth calls to avoid recursion
-    if request.endpoint not in ("static", "uploads", "admin_login", "admin_logout"):
-        ensure_anon_user()
+
 
 
 # --- Views ---
@@ -406,8 +411,9 @@ def delete_post(post_id):
             # Supabase public URL looks like:
             # https://your-project.supabase.co/storage/v1/object/public/<bucket>/posts/<filename>
             # We just need the path after the bucket name
-            file_path = "/".join(image_url.split(f"{SUPABASE_BUCKET}/")[-1:])
+            file_path = image_url.split("/posts/")[-1]
             supabase.storage.from_(SUPABASE_BUCKET).remove([f"posts/{file_path}"])
+            app.logger.info(f"Deleting file from Supabase: posts/{file_path}")
         except Exception as e:
             app.logger.error(f"Failed to delete image from Supabase: {e}")
 
