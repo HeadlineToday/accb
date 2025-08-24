@@ -60,13 +60,6 @@
 <script>
   const socket = io();
 
-   transports: ["websocket"], // avoid polling
-  });
-
-  socket.on("connect", () => {
-    console.log("Connected via WebSocket only!");
-  });
-
   // Helpers
   const pad = n => String(n).padStart(2, "0");
   const fmt = iso => {
@@ -179,6 +172,12 @@ function deletePost(postId) {
   });
 }
 
+transports: ["websocket"], // avoid polling
+  });
+
+socket.on("connect", () => {
+    console.log("Connected via WebSocket only!");
+  });
 
 </script>
 {% endblock %}
