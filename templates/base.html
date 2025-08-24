@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="light"> <!-- 🔑 add data-theme attribute -->
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,16 +8,23 @@
 </head>
 <body>
   <nav class="nav">
-    <!-- 🔑 Hamburger + theme toggle -->
     <div class="brand">CampusAnon</div>
-    
     <div class="spacer"></div>
     <button id="theme-toggle" class="icon-btn">🌙</button>
     <button id="hamburger" class="icon-btn">☰</button>
-  
   </nav>
 
-  <!-- 🔑 Sidebar -->
+  <!-- ✅ Permanent Sidebar (desktop only) -->
+  <aside class="permanent-sidebar">
+    <ul>
+      <li><a href="#"><span>🏠</span></a></li>
+      <li><a href="#"><span>#</span></a></li>
+      <li><a href="#"><span>🔔</span></a></li>
+      <li><a href="#"><span>✉️</span></a></li>
+    </ul>
+  </aside>
+
+  <!-- Existing Mobile Sidebar -->
   <div id="sidebar" class="sidebar">
     <button id="close-sidebar" class="icon-btn">✕</button>
     <ul>
@@ -45,7 +52,6 @@
     {% block content %}{% endblock %}
   </main>
 
-  <!-- 🔑 Scripts -->
   <script>
     // Sidebar toggle
     const hamburger = document.getElementById("hamburger");
@@ -81,7 +87,6 @@
       setTheme(newTheme);
     });
 
-    // On load, restore theme
     const savedTheme = localStorage.getItem("theme") || "light";
     setTheme(savedTheme);
   </script>
