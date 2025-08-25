@@ -118,9 +118,27 @@
     if (badge) badge.textContent = status;
   });
 
-  socket.on("post_deleted", ({ post_id }) => {
-    const card = document.querySelector(`[data-post-id="${post_id}"]`);
-    if (card) card.remove();
+  document.addEventListener("DOMContentLoaded", () => {
+  // Delete form handler
+  document.getElementById("feed").addEventListener("submit", async (e) => {
+    const form = e.target;
+    if (!form.matches('form[action^="/delete_post/"]')) return;
+    e.preventDefault();
+
+    const url = form.action;
+    const postId = form.closest("article.card").dataset.postId;
+
+    try {
+      const res = await fetch(url, { method: "POST" });
+      if (!res.ok) throw new Error(res.status);
+
+      // remove instantly
+      const card = document.querySelector(`[data-post-id="${postId}"]`);
+      if (card) card.remove();
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
+    });
   });
 
   // Like handler
