@@ -421,7 +421,7 @@ def delete_post(post_id):
         abort(404)
 
     # 🔊 broadcast so all clients (feed + admin) remove it live
-    socketio.emit("post_deleted", {"post_id": post_id}, broadcast=True)
+    socketio.emit("post_deleted", {"post_id": post_id})
 
     # If the caller expects JSON (AJAX), return JSON; otherwise normal redirect
     wants_json = "application/json" in (request.headers.get("Accept") or "")
