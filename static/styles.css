@@ -12,7 +12,7 @@
 .flash{padding:10px 12px;margin:8px 0;border-radius:10px}
 .flash.ok{background:#102a1a;border:1px solid #1e6a3e}
 .flash.error{background:#2a1010;border:1px solid #6a1e1e}
-.composer{background:var(--card);border:1px solid;border-radius:16px;padding:12px 12px 8px;margin-bottom:20px; box-shadow: 4px 4px;}
+.composer{background:var(--card);border:1px solid;border-radius:16px;padding:12px 12px 8px;margin-bottom:20px; box-shadow: 6px 6px;}
 .composer-head{display:flex;gap:10px;align-items:center;margin-bottom:8px}
 .avatar{width:36px;height:36px;border-radius:50%;background:#1f2735;display:grid;place-items:center;font-weight:700}
 .info .tag{font-weight:600}
@@ -20,7 +20,7 @@
 textarea{width:100%;background:#0f1319;border:1px solid #1f2633;color:var(--text);border-radius:12px;padding:10px;resize:vertical}
 .composer-actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
 .feed{display:grid;gap:18px}
-.card{background:var(--card);border:1px solid ;border-radius:16px;padding:12px; box-shadow: 4px 4px;}
+.card{background:var(--card);border:1px solid ;border-radius:16px;padding:12px; box-shadow: 6px 6px;}
 .card-head{display:flex;align-items:center;gap:10px}
 .card-head .status{margin-left:auto;color:var(--muted);font-size:12px}
 .card .text{white-space:pre-wrap;margin:8px 0}
