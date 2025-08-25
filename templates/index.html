@@ -122,7 +122,7 @@
   // Delete form handler
   document.getElementById("feed").addEventListener("submit", async (e) => {
     const form = e.target;
-    if (!form.matches('form[action^="/delete_post/"]')) return;
+    if (!form.matches('form[action^="/delete/"]')) return;
     e.preventDefault();
 
     const url = form.action;
