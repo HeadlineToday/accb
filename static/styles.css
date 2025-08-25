@@ -5,6 +5,10 @@
 .spacer{flex:1}
 .btn{background:#1a2030;border:1px solid #2a3345;color:var(--text);padding:8px 12px;border-radius:10px;cursor:pointer}
 .btn:hover{border-color:#3a4760}
+
+.like-btn .heart { color:gray; transition:color 0.2s; }
+.like-btn.liked .heart { color:#ff4d6d; }
+
 .btn.primary{background:var(--primary);border-color:transparent;color:#04152b}
 .btn.danger{background:var(--danger);color:#160000;border-color:transparent}
 .container{max-width:900px;margin:24px auto;padding:0 12px}
