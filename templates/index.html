@@ -34,7 +34,10 @@
   {% for p in posts %}
   <article class="card" data-post-id="{{ p._id }}">
     <header class="card-head">
-      <div class="avatar">{{ (p.anonymous_tag or 'St')[0:2] }}</div>
+      <div class="avatar">
+            <img src="https://api.dicebear.com/9.x/thumbs/svg?seed={{ user.anonymous_tag }}" alt="avatar" />
+
+      </div>
       <div>
         <div class="tag">{{ p.anonymous_tag }}</div>
         <div class="time">{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
@@ -194,27 +197,7 @@
   }, true);
 
 
-  const input = document.getElementById('image-upload');
-  const fileNameSpan = document.querySelector('.file-name');
 
-  input.addEventListener('change', () => {
-    fileNameSpan.textContent = input.files.length > 0 
-      ? input.files[0].name 
-      : "No file chosen";
-  });
-
-  function randomGradient() {
-  const colors = [
-    "#ff6a00", "#ee0979", "#06beb6", "#48c6ef",
-    "#f7971e", "#ffd200", "#8e2de2", "#4a00e0",
-    "#00c9ff", "#92fe9d"
-  ];
-  let c1 = colors[Math.floor(Math.random() * colors.length)];
-  let c2 = colors[Math.floor(Math.random() * colors.length)];
-  return `radial-gradient(circle at center, ${c1}, ${c2})`;
-}
-
-document.getElementById("avatar").style.background = randomGradient();
 </script>
 
 {% endblock %}
