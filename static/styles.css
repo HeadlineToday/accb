@@ -296,13 +296,4 @@ body {
 @media (max-width: 768px) {
   .permanent-sidebar {
     display: none;
-    hover: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .icon-btn {
-    hover: none;
-       
-  }
-}
+  }}
