@@ -12,7 +12,16 @@
     </div>
     <textarea name="text" rows="3" placeholder="What's on your mind (anonymous)?"></textarea>
     <div class="composer-actions">
-      <input type="file" name="image" accept="image/*">
+      <!-- Hidden file input -->
+
+      <!-- SVG button label -->
+      <label for="image-upload" class="upload-icon-btn" title="Upload image">
+        <!-- Example: upload icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip-icon lucide-paperclip"><path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"/></svg><span class="file-name" fill="currentColor">No file chosen</span>
+      </label>
+        
+        <input type="file" name="image" id="image-upload" accept="image/*" style="display: none;">
+
       <button class="btn primary" type="submit">Post</button>
     </div>
   </form>
