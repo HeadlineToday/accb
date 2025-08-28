@@ -48,18 +48,28 @@ AdminLogs = db.admin_logs
 
 
 
-
-
+NAMES = [
+        "Eye", "Brain", "Heart", "Muscle", "Bone", "Liver", 
+        "Stomach", "Kidney", "Pancreas", "Nerve", "Cell", 
+        "Molecule", "Atom", "Proton", "Electron", "Hydrochloric Acid", 
+        "Sulfuric Acid", "Nitric Acid", "Acetic Acid", "Citric Acid", 
+        "Phosphoric Acid", "Glucose", "Oxygen", "Helix", "Wave", 
+        "Crystal", "Magma", "Fission", "Fusion", "Catalyst", 
+        "Enzyme", "Gene", "DNA", "RNA", "Neutron", "Photon", 
+        "Electron", "Photon"
+]
 
 # --- Helpers ---
 def get_ip_hash():
     ip = request.headers.get("X-Forwarded-For", request.remote_addr) or "0.0.0.0"
     return hashlib.sha256(ip.encode()).hexdigest()
 
-def ensure_anon_user():
+def ensure_anon_user(): 
     if "anon_id" not in session:
-        # Create or reuse by ip hash (soft)
-        tag = f"Student{str(uuid.uuid4())[:8]}"
+        # Pick a random name from the list
+        base_name = random.choice(NAMES)
+        tag = f"{base_name}{str(uuid.uuid4())[:6]}"  # shorter suffix for neatness
+        
         user = {
             "anonymous_tag": tag,
             "ip_hash": get_ip_hash(),
