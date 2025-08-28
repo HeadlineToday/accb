@@ -1,5 +1,6 @@
 import os, re, hashlib, uuid
 import filetype
+import random
 from supabase import create_client, Client
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
