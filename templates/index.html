@@ -4,7 +4,10 @@
 <section class="composer">
   <form action="{{ url_for('create_post') }}" method="post" enctype="multipart/form-data">
     <div class="composer-head">
-      <div class="avatar">{{ (user.anonymous_tag or 'You')[0:2] }}</div>
+      <div class="avatar">
+            <img src="https://api.dicebear.com/9.x/thumbs/svg?seed={{ user.anonymous_tag }}" alt="avatar" />
+
+      </div>
       <div class="info">
         <div class="tag">{{ user.anonymous_tag }}</div>
         <div class="hint">Share text, an image, or both. Cooldown: {{ cooldown }}s</div>
@@ -190,6 +193,7 @@
     }
   }, true);
 
+
   const input = document.getElementById('image-upload');
   const fileNameSpan = document.querySelector('.file-name');
 
@@ -198,6 +202,19 @@
       ? input.files[0].name 
       : "No file chosen";
   });
+
+  function randomGradient() {
+  const colors = [
+    "#ff6a00", "#ee0979", "#06beb6", "#48c6ef",
+    "#f7971e", "#ffd200", "#8e2de2", "#4a00e0",
+    "#00c9ff", "#92fe9d"
+  ];
+  let c1 = colors[Math.floor(Math.random() * colors.length)];
+  let c2 = colors[Math.floor(Math.random() * colors.length)];
+  return `radial-gradient(circle at center, ${c1}, ${c2})`;
+}
+
+document.getElementById("avatar").style.background = randomGradient();
 </script>
 
 {% endblock %}
