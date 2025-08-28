@@ -35,7 +35,7 @@
   <article class="card" data-post-id="{{ p._id }}">
     <header class="card-head">
       <div class="avatar">
-            <img src="https://api.dicebear.com/9.x/thumbs/svg?seed={{ user.anonymous_tag }}" alt="avatar" />
+            <img src="https://api.dicebear.com/9.x/thumbs/svg?seed={{ p.anonymous_tag }}" alt="avatar" />
 
       </div>
       <div>
@@ -95,8 +95,9 @@
     const initials = (p.anonymous_tag || "St").slice(0, 2);
     el.innerHTML = `
       <header class="card-head">
-        <div class="avatar">${initials}</div>
-        <div>
+        <div class="avatar">
+          <img src="https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(p.anonymous_tag)}" alt="avatar" />
+        </div>
           <div class="tag">${p.anonymous_tag || ""}</div>
           <div class="time">${fmt(p.created_at)}</div>
         </div>
