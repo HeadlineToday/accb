@@ -51,14 +51,25 @@ posts_collection = db["posts"]
 
 
 NAMES = [
-        "Eye", "Brain", "Heart", "Muscle", "Bone", "Liver", 
-        "Stomach", "Kidney", "Pancreas", "Nerve", "Cell", 
-        "Molecule", "Atom", "Proton", "Electron", "Hydrochloric Acid", 
-        "Sulfuric Acid", "Nitric Acid", "Acetic Acid", "Citric Acid", 
-        "Phosphoric Acid", "Glucose", "Oxygen", "Helix", "Wave", 
-        "Crystal", "Magma", "Fission", "Fusion", "Catalyst", 
-        "Enzyme", "Gene", "DNA", "RNA", "Neutron", "Photon", 
-        "Electron", "Photon"
+        “Med-”, “Rx-”, “Dx-”, “Tx-”, “Hx-”, “Px-”, “Ax-”, 
+    “Lab-”, “Scan-”, “Case-”, “Note-”, “Path-”, “Neuro-”, 
+    “Cardio-”, “Surg-”, “Ortho-”, “Onco-”, “Oto-”, “Ophtho-”, 
+    “Uro-”, “Gastro-”, “Hema-”, “Pharma-”, “Toxo-”, “Micro-”, 
+    “Bio-”, “Viva-”, “Prep-”, “Quiz-”, “Ward-”, “Bed-”, “Rounds-”, 
+    “Pulse-”, “Scope-”, “Tube-”, “Cell-”, “Gene-”, “Code-”, “Stat-”, 
+    “Chart-”, “File-”, “Doc-”, “MBBS-”, “MedX-”, “Diag-”, “Echo-”, 
+    “Xray-”, “Spec-”, “PathX-”, “NoteX-”, “CaseX-”, “ExamX-”, “RxBox-”, 
+    “LabX-”, “ScanX-”, “Neo-”, “Core-”, “Anato-”, “Histo-”, “Cyt-”, 
+    “Derm-”, “Nephro-”, “Pulmo-”, “Hepato-”, “Mentor-”, “Tutor-”, “Anony-”, 
+    “Medz-”, “Clini-”, “Aid-”, “Cura-”, “Script-”, “Atlas-”, “Board-”, 
+    “Chain-”, “Track-”, “Gen-”, “Net-”, “Flow-”, “Sphere-”, “Bridge-”, 
+    “Vault-”, “Loop-”, “Link-”, “Step-”, “Gram-”, “Byte-”, “CellX-”, 
+    “WardX-”, “PulseX-”, “Mind-”, “Brain-”, “Cortex-”, “Stetho-”, 
+    “Suture-”, “Vitals-”, “Examz-”, “Skill-”, “TutorX-”, “CaseHub-”, 
+    “PathHub-”, “EchoX-”, “NeuroX-”, “CardX-”, “ScanHub-”, “NoteHub-”, 
+    “CoreX-”, “DocX-”, “QuickX-”, “StudyX-”, “Wardz-”, “Pulsez-”, 
+    “PrepX-”, “TrackX-”, “NeoX-”, “AnonyX-”, “MedHub-”, “RxHub-”, 
+    “DxHub-”, “TxHub-”, “BioX-”, “GeneX-”
 ]
 
 # --- Helpers ---
@@ -70,7 +81,7 @@ def ensure_anon_user():
     if "anon_id" not in session:
         # Pick a random name from the list
         base_name = random.choice(NAMES)
-        tag = f"{base_name}'-'{str(uuid.uuid4())[:3]}"  # shorter suffix for neatness
+        tag = f"{base_name}{str(uuid.uuid4())[:3]}"  # shorter suffix for neatness
         
         user = {
             "anonymous_tag": tag,
