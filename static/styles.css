@@ -229,7 +229,9 @@ body {
 
 
 
-
+.article_post_padding {
+  display:grid;gap:18px
+}
 
 
 
