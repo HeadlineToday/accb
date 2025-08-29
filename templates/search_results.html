@@ -9,5 +9,13 @@
         {% include "_post.html" %}
       {% endfor %}
     </div>
+  <h3 class="pagination">
+  {% if prev_page %}
+    <a href="{{ url_for('search', query=query, page=prev_page) }}">Previous</a>
+  {% endif %}
+  {% if next_page %}
+    <a href="{{ url_for('search', query=query, page=next_page) }}">Next</a>
+  {% endif %}
+</h3>
   {% endif %}
 {% endblock %}
