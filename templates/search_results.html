@@ -4,10 +4,10 @@
   {% if results|length == 0 %}
     <p>No active posts found.</p>
   {% else %}
-    <ul>
-      {% for p in results %}
+    <div class="feed">
+      {% for post in results %}
         {% include "_post.html" %}
       {% endfor %}
-    </ul>
+    </div>
   {% endif %}
 {% endblock %}
