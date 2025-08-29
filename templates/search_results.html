@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
   <h2>Search results for "{{ query }}"</h2>
+
   {% if results|length == 0 %}
     <p>No active posts found.</p>
   {% else %}
@@ -9,5 +10,32 @@
         {% include "_post.html" %}
       {% endfor %}
     </div>
+
+    {% if results|length > 0 %}
+      <div class="pagination">
+        {% if page > 1 %}
+          <a href="{{ url_for('search_posts', q=query, page=page-1, per_page=per_page) }}">Previous</a>
+        {% endif %}
+
+        <span>Page {{ page }} of {{ total_pages }}</span>
+
+        {% if page < total_pages %}
+          <a href="{{ url_for('search_posts', q=query, page=page+1, per_page=per_page) }}">Next</a>
+        {% endif %}
+      </div>
+
+      <!-- Dropdown for posts per page -->
+      <form method="get" action="{{ url_for('search_posts') }}" style="margin-top:10px;">
+        <input type="hidden" name="q" value="{{ query }}">
+        <input type="hidden" name="page" value="1"> <!-- reset to first page -->
+        <label for="per_page">Posts per page:</label>
+        <select name="per_page" id="per_page" onchange="this.form.submit()">
+          <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+          <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+          <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+          <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+        </select>
+      </form>
+    {% endif %}
   {% endif %}
 {% endblock %}
