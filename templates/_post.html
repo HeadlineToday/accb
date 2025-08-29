@@ -20,15 +20,6 @@
   {% endif %}
 
   <footer class="card-foot">
-    <form action="{{ url_for('like', post_id=p._id) }}" method="post">
-      <button
-        class="btn like-btn {% if session.get('anon_id') and (session.get('anon_id') in (p.liked_by or [])) %}liked{% endif %}"
-        type="submit"
-        data-post-id="{{ p._id }}"
-      >
-        <span class="heart">♥</span>
-        <span class="like-text">{{ p.likes or 0 }}</span>
-      </button>
-    </form>
+    
   </footer>
 </article>
