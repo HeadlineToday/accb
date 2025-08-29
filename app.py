@@ -181,7 +181,7 @@ def search_posts():
     prev_page = page - 1 if page > 1 else None
 
     return render_template(
-        "search_results.html",
+        "_post.html",
         query=query,
         results=results,
         page=page,
