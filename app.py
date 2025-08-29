@@ -70,7 +70,7 @@ def ensure_anon_user():
     if "anon_id" not in session:
         # Pick a random name from the list
         base_name = random.choice(NAMES)
-        tag = f"{base_name}{str(uuid.uuid4())[:6]}"  # shorter suffix for neatness
+        tag = f"{base_name}'-'{str(uuid.uuid4())[:3]}"  # shorter suffix for neatness
         
         user = {
             "anonymous_tag": tag,
