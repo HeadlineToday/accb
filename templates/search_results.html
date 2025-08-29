@@ -6,8 +6,13 @@
   {% else %}
     <ul>
       {% for post in results %}
-        <li>{{ post['content'] }} <small>({{ post['created_at'].strftime("%Y-%m-%d") }})</small></li>
-
+        <li>
+          {{ post["text"] }}
+          {% if post["image_url"] %}
+            <br><img src="{{ post['image_url'] }}" alt="Post image" style="max-width:200px;">
+          {% endif %}
+          <br><small>({{ post["created_at"].strftime("%Y-%m-%d") }})</small>
+        </li>
       {% endfor %}
     </ul>
   {% endif %}
