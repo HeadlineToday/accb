@@ -199,7 +199,14 @@
     }
   }, true);
 
+    const input = document.getElementById('image-upload');
+    const fileNameSpan = document.querySelector('.file-name');
 
+      input.addEventListener('change', () => {
+        fileNameSpan.textContent = input.files.length > 0 
+          ? input.files[0].name 
+          : "No file chosen";
+      });  
 
 </script>
 
