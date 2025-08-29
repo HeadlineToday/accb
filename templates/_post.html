@@ -1,0 +1,14 @@
+<div class="post">
+  <div class="post-header">
+    <img src="{{ post.avatar_url }}" alt="avatar" class="avatar">
+    <span class="username">{{ post.username }}</span>
+    <span class="timestamp">{{ post.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
+  </div>
+  <div class="post-body">
+    <p>{{ post.content }}</p>
+  </div>
+  <div class="post-actions">
+    <button>Like</button>
+    <button>Comment</button>
+  </div>
+</div>
