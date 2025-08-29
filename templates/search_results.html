@@ -9,27 +9,5 @@
         {% include "_post.html" %}
       {% endfor %}
     </div>
-
-    <!-- Pagination -->
-    <div class="pagination">
-      {% if prev_page %}
-        <a href="{{ url_for('search', query=query, page=prev_page, per_page=per_page) }}">Previous</a>
-      {% endif %}
-      <span>Page {{ page }}</span>
-      {% if next_page %}
-        <a href="{{ url_for('search', query=query, page=next_page, per_page=per_page) }}">Next</a>
-      {% endif %}
-    </div>
-
-    <!-- Per page selector -->
-    <form method="get" action="{{ url_for('search') }}">
-      <input type="hidden" name="query" value="{{ query }}">
-      <label for="per_page">Results per page:</label>
-      <select name="per_page" id="per_page" onchange="this.form.submit()">
-        {% for option in [10,20,50,100] %}
-          <option value="{{ option }}" {% if per_page == option %}selected{% endif %}>{{ option }}</option>
-        {% endfor %}
-      </select>
-    </form>
   {% endif %}
 {% endblock %}
