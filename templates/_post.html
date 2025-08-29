@@ -1,14 +1,34 @@
-<div class="post">
-  <div class="post-header">
-    <img src="{{ post.avatar_url }}" alt="avatar" class="avatar">
-    <span class="username">{{ post.username }}</span>
-    <span class="timestamp">{{ post.created_at.strftime("%Y-%m-%d %H:%M") }}</span>
-  </div>
-  <div class="post-body">
-    <p>{{ post.content }}</p>
-  </div>
-  <div class="post-actions">
-    <button>Like</button>
-    <button>Comment</button>
-  </div>
-</div>
+<article class="card" data-post-id="{{ p._id }}">
+  <header class="card-head">
+    <div class="avatar">
+      <img src="https://api.dicebear.com/9.x/thumbs/svg?seed={{ p.anonymous_tag }}" alt="avatar" />
+    </div>
+    <div>
+      <div class="tag">{{ p.anonymous_tag }}</div>
+      <div class="time">{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+    </div>
+    {% if p.status %}
+      <div class="status" data-col="status">{{ p.status }}</div>
+    {% endif %}
+  </header>
+
+  {% if p.text %}
+    <p class="text">{{ p.text }}</p>
+  {% endif %}
+  {% if p.image_url %}
+    <img class="post-img" src="{{ p.image_url }}" alt="post image">
+  {% endif %}
+
+  <footer class="card-foot">
+    <form action="{{ url_for('like', post_id=p._id) }}" method="post">
+      <button
+        class="btn like-btn {% if session.get('anon_id') and (session.get('anon_id') in (p.liked_by or [])) %}liked{% endif %}"
+        type="submit"
+        data-post-id="{{ p._id }}"
+      >
+        <span class="heart">♥</span>
+        <span class="like-text">{{ p.likes or 0 }}</span>
+      </button>
+    </form>
+  </footer>
+</article>
