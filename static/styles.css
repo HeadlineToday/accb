@@ -230,7 +230,8 @@ body {
 
 
 .article_post_padding {
-  display:grid;gap:18px
+  display:grid;
+  gap:18px
 }
 
 
