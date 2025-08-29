@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Search results for "{{ query }}"</h2>
+  {% if results.count() == 0 %}
+    <p>No active posts found.</p>
+  {% else %}
+    <ul>
+      {% for post in results %}
+        <li>{{ post.content }} <small>({{ post.created_at.strftime("%Y-%m-%d") }})</small></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}
