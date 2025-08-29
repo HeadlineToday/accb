@@ -293,12 +293,39 @@ body {
   }
 
   .avatar img {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%; /* makes it circular */
 }
+
+.search-form {
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
+}
+.search-form input {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--muted);
+  background: var(--card);
+  color: var(--text);
+}
+.search-form button {
+  margin-left: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+}
+
+
 /* Hide permanent sidebar on mobile */
 @media (max-width: 768px) {
   .permanent-sidebar {
     display: none;
   }}
+
+
+
