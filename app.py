@@ -162,6 +162,25 @@ def bootstrap_and_ensure_user():
         ensure_anon_user()
 
 
+@app.route("/search")
+def search_posts():
+    query = request.args.get("q", "").strip()
+    if not query:
+        return redirect(url_for("index"))
+
+    cutoff = datetime.utcnow() - timedelta(days=30)
+
+    # Filter: active only (not hidden, not muted, within 30 days)
+    results = posts_collection.find({
+        "content": {"$regex": query, "$options": "i"},
+        "hidden": False,
+        "muted": False,
+        "created_at": {"$gte": cutoff}
+    }).sort("created_at", -1)
+
+    return render_template("search_results.html", results=results, query=query)
+
+
 # --- Views ---
 @app.route("/")
 def home():
