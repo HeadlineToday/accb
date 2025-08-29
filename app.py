@@ -168,20 +168,37 @@ def bootstrap_and_ensure_user():
 def search_posts():
     query = request.args.get("q", "").strip()
     if not query:
-        return redirect(url_for("home"))  # you used "home", not "index"
+        return redirect(url_for("home"))
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=30)
 
     regex = re.escape(query)
+
+    # pagination params
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)  # dynamic per-page
+    skip = (page - 1) * per_page
+
     cursor = Posts.find({
-        "text": {"$regex": regex, "$options": "i"},   # ✅ correct field
-        "status": "active",                           # ✅ use status instead of hidden/muted
+        "text": {"$regex": regex, "$options": "i"},
+        "status": "active",
         "created_at": {"$gte": cutoff}
     }).sort("created_at", -1)
 
-    results = list(cursor)
+    total_results = cursor.count()
+    results = list(cursor.skip(skip).limit(per_page))
 
-    return render_template("search_results.html", results=results, query=query)
+    total_pages = (total_results + per_page - 1) // per_page
+
+    return render_template(
+        "search_results.html",
+        results=results,
+        query=query,
+        page=page,
+        total_pages=total_pages,
+        per_page=per_page
+    )
+
 
 
 
