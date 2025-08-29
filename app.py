@@ -164,23 +164,33 @@ def bootstrap_and_ensure_user():
 
 
 @app.route("/search")
-def search_posts():
-    query = request.args.get("q", "").strip()
-    if not query:
-        return redirect(url_for("home"))  # you used "home", not "index"
+def search():
+    query = request.args.get("query", "")
+    page = int(request.args.get("page", 1))
+    per_page = int(request.args.get("per_page", 20))  # default 20
 
-    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+    # Fetch all results matching query
+    all_results = list(Posts.find({"title": {"$regex": query, "$options": "i"}}))  
 
-    regex = re.escape(query)
-    cursor = Posts.find({
-        "text": {"$regex": regex, "$options": "i"},   # ✅ correct field
-        "status": "active",                           # ✅ use status instead of hidden/muted
-        "created_at": {"$gte": cutoff}
-    }).sort("created_at", -1)
+    total = len(all_results)
+    start = (page - 1) * per_page
+    end = start + per_page
+    results = all_results[start:end]
 
-    results = list(cursor)
+    next_page = page + 1 if end < total else None
+    prev_page = page - 1 if page > 1 else None
 
-    return render_template("search_results.html", results=results, query=query)
+    return render_template(
+        "search.html",
+        query=query,
+        results=results,
+        page=page,
+        per_page=per_page,
+        next_page=next_page,
+        prev_page=prev_page,
+        total=total,
+    )
+
 
 
 
