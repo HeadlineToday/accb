@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
   <h2>Search results for "{{ query }}"</h2>
-  {% if results.count() == 0 %}
+  {% if results|length == 0 %}
     <p>No active posts found.</p>
   {% else %}
     <ul>
