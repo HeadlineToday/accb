@@ -46,6 +46,7 @@ Users = db.users
 Posts = db.posts
 Banned = db.banned_words
 AdminLogs = db.admin_logs
+posts_collection = db["posts"]
 
 
 
