@@ -62,17 +62,8 @@
       <span class="heart">♥</span>
       <span class="like-text">{{ p.likes or 0 }}</span>
     </button>
-  </form>
-
-  <!-- Flag button -->
-  <form action="{{ url_for('flag', post_id=p._id) }}" method="post" class="inline-form">
-    <button
-      class="btn flag-btn {% if session.get('anon_id') and (session.get('anon_id') in (p.flagged_by or [])) %}flagged{% endif %}"
-      type="submit" data-post-id="{{ p._id }}">
-      <span class="commnet">🚩</span>
-    </button>
-  </form>
-</footer>
+    </form>
+  </footer>
 
 </article>
   {% else %}
