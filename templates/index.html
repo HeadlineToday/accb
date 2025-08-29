@@ -32,38 +32,7 @@
 
 <section class="feed" id="feed">
   {% for p in posts %}
-  <article class="card" data-post-id="{{ p._id }}">
-    <header class="card-head">
-      <div class="avatar">
-            <img src="https://api.dicebear.com/9.x/thumbs/svg?seed={{ p.anonymous_tag }}" alt="avatar" />
-
-      </div>
-      <div>
-        <div class="tag">{{ p.anonymous_tag }}</div>
-        <div class="time">{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
-      </div>
-      <div class="status" data-col="status">{{ p.status }}</div>
-    </header>
-    {% if p.text %}
-      <p class="text">{{ p.text }}</p>
-    {% endif %}
-    {% if p.image_url %}
-      <img class="post-img" src="{{ p.image_url }}" alt="post image">
-    {% endif %}
-    <footer class="card-foot">
-      <form action="{{ url_for('like', post_id=p._id) }}" method="post">
-        <button
-          class="btn like-btn {% if my_id and (my_id in (p.liked_by or [])) %}liked{% endif %}"
-          type="submit"
-          data-post-id="{{ p._id }}"
-          {% if user.is_banned or user.is_muted %}disabled{% endif %}
-        >
-          <span class="heart">♥</span>
-          <span class="like-text">{{ p.likes or 0 }}</span>
-        </button>
-      </form>
-    </footer>
-  </article>
+    {% include "_post.html" %}
   {% else %}
     <p class="muted">No posts yet. Be the first!</p>
   {% endfor %}
