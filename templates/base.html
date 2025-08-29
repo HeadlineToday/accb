@@ -11,7 +11,7 @@
     <div class="brand">CampusAnon</div>
     <div class="spacer"></div>
     <form action="{{ url_for('search_posts') }}" method="get" class="search-form">
-      <input type="text" name="q" placeholder="Search posts..." required>
+      <input type="text" name="q" value="{{ query }}" placeholder="Search posts..." required>
       <button type="submit">🔍</button>
     </form>
 
