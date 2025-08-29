@@ -5,7 +5,7 @@
     <p>No active posts found.</p>
   {% else %}
     <div class="feed">
-      {% for post in results %}
+      {% for p in results %}
         {% include "_post.html" %}
       {% endfor %}
     </div>
