@@ -167,20 +167,21 @@ def bootstrap_and_ensure_user():
 def search_posts():
     query = request.args.get("q", "").strip()
     if not query:
-        return redirect(url_for("index"))
+        return redirect(url_for("home"))  # you used "home", not "index"
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=30)
 
+    regex = re.escape(query)
     cursor = Posts.find({
-        "content": {"$regex": query, "$options": "i"},
-        "hidden": False,
-        "muted": False,
+        "text": {"$regex": regex, "$options": "i"},   # ✅ correct field
+        "status": "active",                           # ✅ use status instead of hidden/muted
         "created_at": {"$gte": cutoff}
     }).sort("created_at", -1)
 
-    results = list(cursor)   # ✅ convert cursor to list
+    results = list(cursor)
 
     return render_template("search_results.html", results=results, query=query)
+
 
 
 
