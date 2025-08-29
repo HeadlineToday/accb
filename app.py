@@ -163,33 +163,25 @@ def bootstrap_and_ensure_user():
         ensure_anon_user()
 
 
+
 @app.route("/search")
 def search_posts():
-    query = request.args.get("query", "")
-    page = int(request.args.get("page", 1))
-    per_page = int(request.args.get("per_page", 20))  # default 20
+    query = request.args.get("q", "").strip()
+    if not query:
+        return redirect(url_for("home"))  # you used "home", not "index"
 
-    # Fetch all results matching query
-    all_results = list(Posts.find({"title": {"$regex": query, "$options": "i"}}))  
+    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
 
-    total = len(all_results)
-    start = (page - 1) * per_page
-    end = start + per_page
-    results = all_results[start:end]
+    regex = re.escape(query)
+    cursor = Posts.find({
+        "text": {"$regex": regex, "$options": "i"},   # ✅ correct field
+        "status": "active",                           # ✅ use status instead of hidden/muted
+        "created_at": {"$gte": cutoff}
+    }).sort("created_at", -1)
 
-    next_page = page + 1 if end < total else None
-    prev_page = page - 1 if page > 1 else None
+    results = list(cursor)
 
-    return render_template(
-        "search_results.html",
-        query=query,
-        results=results,
-        page=page,
-        per_page=per_page,
-        next_page=next_page,
-        prev_page=prev_page,
-        total=total,
-    )
+    return render_template("search_results.html", results=results, query=query)
 
 
 
