@@ -176,16 +176,17 @@ def search_posts():
 
     # pagination params
     page = request.args.get("page", 1, type=int)
-    per_page = request.args.get("per_page", 10, type=int)  # dynamic per-page
+    per_page = request.args.get("per_page", 10, type=int)
     skip = (page - 1) * per_page
 
-    cursor = Posts.find({
+    filter_query = {
         "text": {"$regex": regex, "$options": "i"},
         "status": "active",
         "created_at": {"$gte": cutoff}
-    }).sort("created_at", -1)
+    }
 
-    total_results = cursor.count()
+    cursor = Posts.find(filter_query).sort("created_at", -1)
+    total_results = Posts.count_documents(filter_query)  # ✅ correct way now
     results = list(cursor.skip(skip).limit(per_page))
 
     total_pages = (total_results + per_page - 1) // per_page
@@ -198,6 +199,7 @@ def search_posts():
         total_pages=total_pages,
         per_page=per_page
     )
+
 
 
 
