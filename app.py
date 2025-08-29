@@ -2,7 +2,7 @@ import os, re, hashlib, uuid
 import filetype
 import random
 from supabase import create_client, Client
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from flask import (
     Flask, request, render_template, redirect, url_for,
@@ -169,17 +169,19 @@ def search_posts():
     if not query:
         return redirect(url_for("index"))
 
-    cutoff = datetime.utcnow() - timedelta(days=30)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
 
-    # Filter: active only (not hidden, not muted, within 30 days)
-    results = posts_collection.find({
+    cursor = Posts.find({
         "content": {"$regex": query, "$options": "i"},
         "hidden": False,
         "muted": False,
         "created_at": {"$gte": cutoff}
     }).sort("created_at", -1)
 
+    results = list(cursor)   # ✅ convert cursor to list
+
     return render_template("search_results.html", results=results, query=query)
+
 
 
 # --- Views ---
