@@ -6,7 +6,8 @@
   {% else %}
     <ul>
       {% for post in results %}
-        <li>{{ post.content }} <small>({{ post.created_at.strftime("%Y-%m-%d") }})</small></li>
+        <li>{{ post['content'] }} <small>({{ post['created_at'].strftime("%Y-%m-%d") }})</small></li>
+
       {% endfor %}
     </ul>
   {% endif %}
