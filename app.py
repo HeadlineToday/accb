@@ -51,7 +51,13 @@ posts_collection = db["posts"]
 
 
 NAMES = [
-      "Med-", "Rx-", "Dx-", "Tx-", "Hx-", "Px-", "Ax-"
+      "Med-", "Rx-", "Dx-", "Tx-", "Hx-", "Px-", "Ax-", "Lab-", "Scan-", "Case-", "Note-", "Path-", "Neuro-", "Cardio-", "Surg-", "Ortho-", "Onco-", "Oto-", "Ophtho-", "Uro-", "Gastro-",
+    "Hema-", "Pharma-", "Toxo-", "Micro-", "Bio-", "Viva-", "Prep-", "Quiz-", "Ward-", "Bed-", "Rounds-", "Pulse-", "Scope-", "Tube-", "Cell-", "Gene-", "Code-", "Stat-", 
+    "Chart-", "File-", "Doc-", "MBBS-", "MedX-", "Diag-", "Echo-", "Xray-", "Spec-", "PathX-", "NoteX-", "CaseX-", "ExamX-", "RxBox-", "LabX-", "ScanX-", "Neo-", "Core-", 
+    "Anato-", "Histo-", "Cyt-", "Derm-", "Nephro-", "Pulmo-", "Hepato-", "Mentor-", "Tutor-", "Anony-", "Medz-", "Clini-", "Aid-", "Cura-", "Script-", "Atlas-", "Board-", 
+    "Chain-", "Track-", "Gen-", "Net-", "Flow-", "Sphere-", "Bridge-", "Vault-", "Loop-", "Link-", "Step-", "Gram-", "Byte-", "CellX-", "WardX-", "PulseX-", "Mind-", "Brain-", 
+    "Cortex-", "Stetho-", "Suture-", "Vitals-", "Examz-", "Skill-", "TutorX-", "CaseHub-", "PathHub-", "EchoX-", "NeuroX-", "CardX-", "ScanHub-", "NoteHub-", "CoreX-", "DocX-", 
+    "QuickX-", "StudyX-", "Wardz-", "Pulsez-", "PrepX-", "TrackX-", "NeoX-", "AnonyX-", "MedHub-", "RxHub-", "DxHub-", "TxHub-", "BioX-", "GeneX-"
 ]
 
 # --- Helpers ---
