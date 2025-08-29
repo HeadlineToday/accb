@@ -164,7 +164,7 @@ def bootstrap_and_ensure_user():
 
 
 @app.route("/search")
-def search():
+def search_posts():
     query = request.args.get("query", "")
     page = int(request.args.get("page", 1))
     per_page = int(request.args.get("per_page", 20))  # default 20
@@ -181,7 +181,7 @@ def search():
     prev_page = page - 1 if page > 1 else None
 
     return render_template(
-        "search.html",
+        "search_results.html",
         query=query,
         results=results,
         page=page,
