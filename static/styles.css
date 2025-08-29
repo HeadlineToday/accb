@@ -323,6 +323,51 @@ body {
   cursor: pointer;
 }
 
+.pagination {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.pagination a {
+  display: inline-block;
+  margin: 0 5px;
+  padding: 6px 12px;
+  background: #1e293b; /* dark card-like background */
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.pagination a:hover {
+  background: #334155; /* slightly lighter hover */
+}
+
+.pagination span {
+  margin: 0 10px;
+  font-weight: bold;
+}
+
+.pagination + form {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.pagination + form label {
+  margin-right: 8px;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.pagination + form select {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #fff;
+  cursor: pointer;
+}
+
 
 /* Hide permanent sidebar on mobile */
 @media (max-width: 768px) {
