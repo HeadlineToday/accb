@@ -43,74 +43,73 @@
     </section>
 
     <!-- Comments list -->
-    <section>
-      {% if comments|length == 0 %}
-        <p>Be the first one to comment!</p>
-      {% else %}
-        {% for c in comments %}
-          <div class="comment-card">
-            <div class="meta">
-              <strong>{{ c.anonymous_tag or 'Anonymous' }}</strong>
-              <span>•</span>
-              <time>{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</time>
-            </div>
-            <div style="white-space:pre-wrap">{{ c.text }}</div>
+    {% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <header class="card-head">
+    <div class="avatar">
+      <img src="https://api.dicebear.com/9.x/thumbs/svg?seed={{ post.anonymous_tag }}" alt="avatar">
+    </div>
+    <div>
+      <div class="tag">{{ post.anonymous_tag }}</div>
+      <div class="time">{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+    </div>
+  </header>
+  {% if post.text %}<p class="text">{{ post.text }}</p>{% endif %}
+  {% if post.image_url %}<img class="post-img" src="{{ post.image_url }}" alt="post image">{% endif %}
+</section>
 
-            <div class="actions">
-              <button type="button" onclick="toggleReply('{{ c._id }}')">Reply</button>
-            </div>
+<section class="comments">
+  <h2>Comments</h2>
 
-            <!-- inline reply form -->
-            <form class="reply-form" id="reply-{{ c._id }}" method="post"
-                  action="{{ url_for('add_comment', post_id=str(post['_id'])) }}"
-                  style="display:none;">
-              <input type="hidden" name="parent_id" value="{{ c._id }}">
-              <textarea name="text" rows="2" placeholder="Write a reply..." style="width:100%;" required></textarea>
-              <div style="margin-top:6px;">
-                <button type="submit">Reply</button>
-              </div>
-            </form>
+  <!-- Add new comment -->
+  <form action="{{ url_for('add_comment', post_id=post._id) }}" method="post" class="comment-form">
+    <textarea name="text" rows="2" placeholder="Write a comment..."></textarea>
+    <button class="btn primary" type="submit">Post</button>
+  </form>
 
-            {% if c.replies %}
-              {% for r in c.replies %}
-                <div class="comment-card reply">
-                  <div class="meta">
-                    <strong>{{ r.anonymous_tag or 'Anonymous' }}</strong>
-                    <span>•</span>
-                    <time>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</time>
-                  </div>
-                  <div style="white-space:pre-wrap">{{ r.text }}</div>
+  <!-- Render comments -->
+  {% macro render_comment(c) %}
+    <div class="comment">
+      <p><b>{{ c.anonymous_tag }}</b> · <span class="time">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</span></p>
+      <p>{{ c.text }}</p>
 
-                  <div class="actions">
-                    <button type="button" onclick="toggleReply('{{ r._id }}')">Reply</button>
-                  </div>
+      <!-- Reply form -->
+      <form action="{{ url_for('add_comment', post_id=post._id) }}" method="post" class="reply-form">
+        <input type="hidden" name="parent_id" value="{{ c._id }}">
+        <textarea name="text" rows="1" placeholder="Reply..."></textarea>
+        <button class="btn small" type="submit">Reply</button>
+      </form>
 
-                  <!-- nested reply form -->
-                  <form class="reply-form" id="reply-{{ r._id }}" method="post"
-                        action="{{ url_for('add_comment', post_id=str(post['_id'])) }}"
-                        style="display:none;">
-                    <input type="hidden" name="parent_id" value="{{ r._id }}">
-                    <textarea name="text" rows="2" placeholder="Write a reply..." style="width:100%;" required></textarea>
-                    <div style="margin-top:6px;">
-                      <button type="submit">Reply</button>
-                    </div>
-                  </form>
-
-                </div>
-              {% endfor %}
-            {% endif %}
-          </div>
-        {% endfor %}
+      <!-- Render replies -->
+      {% if c.replies %}
+        <div class="replies">
+          {% for r in c.replies %}
+            {{ render_comment(r) }}
+          {% endfor %}
+        </div>
       {% endif %}
-    </section>
-  </div>
+    </div>
+  {% endmacro %}
 
-  <script>
-    function toggleReply(id) {
-      const el = document.getElementById('reply-' + id);
-      if (!el) return;
-      el.style.display = el.style.display === 'none' ? 'block' : 'none';
-    }
-  </script>
+  {% if comments %}
+    {% for c in comments %}
+      {{ render_comment(c) }}
+    {% endfor %}
+  {% else %}
+    <p class="muted">Be the first one to comment.</p>
+  {% endif %}
+</section>
+
+<style>
+  .comments { margin-top: 1rem; }
+  .comment { padding: .5rem; border-bottom: 1px solid #ddd; }
+  .replies { margin-left: 1rem; border-left: 2px solid #ccc; padding-left: .5rem; }
+  .comment-form, .reply-form { margin-top: .5rem; }
+  .reply-form textarea { font-size: .9em; }
+  .btn.small { padding: .25rem .5rem; font-size: .8em; }
+</style>
+{% endblock %}
+
 </body>
 </html>
