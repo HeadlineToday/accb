@@ -62,6 +62,7 @@ textarea{width:100%;background:#1f2633;border:1px solid #1f2633;color:var(--text
   --ok: #4ade80;
 }
 
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -82,46 +83,105 @@ body {
 }
 
 /* === Sidebar === */
+/* Sidebar Base */
 .sidebar {
   position: fixed;
   top: 0;
-  right: -260px; /* hidden */
+  right: -260px; /* hidden by default */
   width: 240px;
   height: 100%;
   background: var(--card);
-  border-right: 1px solid #1e2430;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  border-left: 1px solid #1e2430;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.2);
   padding: 20px;
+  display: flex;
+  flex-direction: column;
   transition: right 0.3s ease;
   z-index: 1001;
 }
+
 .sidebar.open {
   right: 0;
 }
+
+/* Close button */
+#close-sidebar {
+  display: block;
+  margin-left: auto;
+  font-size: 22px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+/* Mobile Search Bar inside Sidebar */
+.sidebar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f5f0;
+  padding: 6px 10px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+
+.sidebar-search input {
+  border: none;
+  outline: none;
+  flex: 1;
+  background: transparent;
+  font-size: 14px;
+}
+
+.sidebar-search button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* Sidebar Links */
 .sidebar ul {
   list-style: none;
   padding: 0;
-  margin: 20px 0;
+  margin: 0;
+  flex: 1;
 }
+
 .sidebar ul li {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
+
 .sidebar ul li a {
   color: var(--text);
   text-decoration: none;
   font-weight: 500;
+  transition: color 0.2s ease;
 }
+
 .sidebar ul li a:hover {
   color: var(--primary);
 }
 
-/* Close button inside sidebar */
-#close-sidebar {
-  display: block;
-  margin-left: auto;
-  font-size: 18px;
-  margin-bottom: 20px;
+/* === Mobile vs Desktop === */
+
+/* Hide navbar search on mobile */
+@media (max-width: 768px) {
+  .search-wrapper {
+    display: none !important;
+  }
 }
+
+/* Hide sidebar search on desktop */
+@media (min-width: 769px) {
+  .sidebar-search {
+    display: none;
+  }
+}
+
+
 
 /* === Overlay behind sidebar === */
 .overlay {
@@ -147,16 +207,13 @@ body {
 /* ✅ Permanent Sidebar (only for desktop) */
 .permanent-sidebar {
   position: fixed;
-  top: 62px; /* below top navbar */
+  top: 65px; /* below top navbar */
   left: 0;
   width: 200px;
   height: calc(100% - 62px); /* ✅ accounts for navbar height */
   background: var(--card);
   display: flex;
   flex-direction: column;
-  align-items: left;
-  padding-left: 10px;
-  padding-top: 18px;
   border-right: 2px solid #1e2430;
   overflow-y: auto;
 }
@@ -184,6 +241,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-left: 10px;
   padding: 10px 12px;
   border-radius: 6px;
   color: inherit;
@@ -229,10 +287,7 @@ body {
 
 
 
-.article_post_padding {
-  display:grid;
-  gap:18px;
-}
+
 
 
 
@@ -296,32 +351,19 @@ body {
   }
 
   .avatar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* makes it circular */
+}
+
+
+  .avatar img {
   width: 36px;
   height: 36px;
   border-radius: 50%; /* makes it circular */
 }
 
-.search-form {
-  display: flex;
-  align-items: center;
-  margin-right: 1rem;
-}
-.search-form input {
-  padding: 5px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--muted);
-  background: var(--card);
-  color: var(--text);
-}
-.search-form button {
-  margin-left: 5px;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 6px;
-  background: var(--primary);
-  color: #fff;
-  cursor: pointer;
-}
+
 
 .pagination {
   margin: 20px 0;
