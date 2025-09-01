@@ -64,9 +64,8 @@
     </button>
     </form>
 <!-- Comment button -->
-  <a class="btn btn-sm" href="{{ url_for('view_comments', post_id=p._id) }}">
-    💬 Comment
-  </a>
+  <a class="btn" href="{{ url_for('view_comments', post_id=p._id) }}">💬 {{ p.comment_count or 0 }}</a>
+
   </footer>
 
 </article>
