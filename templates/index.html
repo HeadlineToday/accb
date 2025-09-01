@@ -62,10 +62,11 @@
       <span class="heart">♥</span>
       <span class="like-text">{{ p.likes or 0 }}</span>
     </button>
-    
-
-
     </form>
+<!-- Comment button -->
+  <a class="btn btn-sm" href="{{ url_for('view_comments', post_id=p._id) }}">
+    💬 Comment
+  </a>
   </footer>
 
 </article>
@@ -116,10 +117,11 @@
             <span class="heart">♥</span>
             <span class="like-text">${p.likes || 0}</span>
           </button>
-          <button class="btn btn-sm" href="{{ url_for('view_comments', post_id=str(p['_id'])) }}">
-        <span>💬</span> 
-          </button>
         </form>
+        
+        <a class="btn btn-sm" href="/post/${p._id}/comments">
+        💬 Comment
+      </a>
       </footer>`;
     return el;
   }
