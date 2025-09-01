@@ -18,7 +18,7 @@
 .flash.error{background:#2a1010;border:1px solid #6a1e1e}
 .composer{background:var(--card);border:1px solid;border-radius:16px;padding:12px 12px 8px;margin-bottom:20px; box-shadow: 6px 6px;}
 .composer-head{display:flex;gap:10px;align-items:center;margin-bottom:8px}
-.avatar{width:36px;height:36px;border-radius:50%;background:#1f2735;display:grid;place-items:center;font-weight:700}
+.avatar img{width:36px;height:36px;border-radius:50%;background:#1f2735;display:grid;place-items:center;font-weight:700}
 .info .tag{font-weight:600}
 .info .hint{font-size:12px;color:var(--muted)}
 textarea{width:100%;background:#1f2633;border:1px solid #1f2633;color:var(--text);border-radius:12px;padding:10px;resize:vertical}
@@ -348,16 +348,6 @@ body {
   .file-name {
     font-size: 14px;  
   }
-
-  .avatar img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%; /* makes it circular */
-}
-
-
-
-
 
 .sidebar-footer {
   text-align: center;
