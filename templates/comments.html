@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Comments</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    .comment-card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; margin: 8px 0; }
+    .reply { margin-left: 16px; border-left: 2px solid #eee; padding-left: 12px; }
+    .meta { font-size: 12px; opacity: 0.7; }
+    .actions { margin-top: 6px; }
+    .reply-form { margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container" style="max-width:720px; margin: 0 auto; padding: 16px;">
+    <!-- Post at the top -->
+    <article class="comment-card" style="background: var(--card-bg, #fafafa);">
+      <div class="meta">
+        <strong>{{ post.anonymous_tag }}</strong>
+        <span>•</span>
+        <time>{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</time>
+      </div>
+      {% if post.text %}
+        <p style="white-space:pre-wrap">{{ post.text }}</p>
+      {% endif %}
+      {% if post.image_url %}
+        <div><img src="{{ post.image_url }}" alt="image" style="max-width:100%; border-radius:8px;"></div>
+      {% endif %}
+    </article>
+
+    <!-- New comment box -->
+    <section class="comment-card">
+      <form method="post" action="{{ url_for('add_comment', post_id=str(post['_id'])) }}">
+        <input type="hidden" name="parent_id" value="">
+        <textarea name="text" placeholder="Write a comment..." rows="3" style="width:100%;" required></textarea>
+        <div style="margin-top:8px;">
+          <button type="submit">Post Comment</button>
+          <a href="{{ url_for('home') }}" style="margin-left:8px;">Back</a>
+        </div>
+      </form>
+    </section>
+
+    <!-- Comments list -->
+    <section>
+      {% if comments|length == 0 %}
+        <p>Be the first one to comment!</p>
+      {% else %}
+        {% for c in comments %}
+          <div class="comment-card">
+            <div class="meta">
+              <strong>{{ c.anonymous_tag or 'Anonymous' }}</strong>
+              <span>•</span>
+              <time>{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</time>
+            </div>
+            <div style="white-space:pre-wrap">{{ c.text }}</div>
+
+            <div class="actions">
+              <button type="button" onclick="toggleReply('{{ c._id }}')">Reply</button>
+            </div>
+
+            <!-- inline reply form -->
+            <form class="reply-form" id="reply-{{ c._id }}" method="post"
+                  action="{{ url_for('add_comment', post_id=str(post['_id'])) }}"
+                  style="display:none;">
+              <input type="hidden" name="parent_id" value="{{ c._id }}">
+              <textarea name="text" rows="2" placeholder="Write a reply..." style="width:100%;" required></textarea>
+              <div style="margin-top:6px;">
+                <button type="submit">Reply</button>
+              </div>
+            </form>
+
+            {% if c.replies %}
+              {% for r in c.replies %}
+                <div class="comment-card reply">
+                  <div class="meta">
+                    <strong>{{ r.anonymous_tag or 'Anonymous' }}</strong>
+                    <span>•</span>
+                    <time>{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</time>
+                  </div>
+                  <div style="white-space:pre-wrap">{{ r.text }}</div>
+
+                  <div class="actions">
+                    <button type="button" onclick="toggleReply('{{ r._id }}')">Reply</button>
+                  </div>
+
+                  <!-- nested reply form -->
+                  <form class="reply-form" id="reply-{{ r._id }}" method="post"
+                        action="{{ url_for('add_comment', post_id=str(post['_id'])) }}"
+                        style="display:none;">
+                    <input type="hidden" name="parent_id" value="{{ r._id }}">
+                    <textarea name="text" rows="2" placeholder="Write a reply..." style="width:100%;" required></textarea>
+                    <div style="margin-top:6px;">
+                      <button type="submit">Reply</button>
+                    </div>
+                  </form>
+
+                </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% endif %}
+    </section>
+  </div>
+
+  <script>
+    function toggleReply(id) {
+      const el = document.getElementById('reply-' + id);
+      if (!el) return;
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>
