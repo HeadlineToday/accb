@@ -62,10 +62,7 @@
       <span class="heart">♥</span>
       <span class="like-text">{{ p.likes or 0 }}</span>
     </button>
-    <button 
-     class="btn btn-sm" href="{{ url_for('view_comments', post_id=str(p['_id'])) }}">
-  <span>💬</span> 
-    </button>
+    
 
 
     </form>
@@ -118,6 +115,9 @@
           <button class="btn like-btn" type="submit" data-post-id="${p._id}">
             <span class="heart">♥</span>
             <span class="like-text">${p.likes || 0}</span>
+          </button>
+          <button class="btn btn-sm" href="{{ url_for('view_comments', post_id=str(p['_id'])) }}">
+        <span>💬</span> 
           </button>
         </form>
       </footer>`;
