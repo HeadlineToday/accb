@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CampusAnon</title>
   <link rel="icon" type="image/x-icon" href="/static/favicon.png">
+  <meta name="theme-color" content="#ffffff" id="theme-color">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <meta name="theme-color" content="#0b0d10">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
@@ -221,14 +222,29 @@
       document.documentElement.setAttribute("data-theme", theme);
       localStorage.setItem("theme", theme);
 
+      const themeColorMeta = document.getElementById("theme-color");
+
       if (theme === "dark") {
         moonIcon.style.display = "none";
         sunIcon.style.display = "block";
+        themeColorMeta.setAttribute("content", "#0b0d10"); // dark bar
       } else {
         moonIcon.style.display = "block";
         sunIcon.style.display = "none";
+        themeColorMeta.setAttribute("content", "#ffffff"); // light bar
       }
     }
+
+
+    themeToggle.addEventListener("click", () => {
+      const newTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      setTheme(newTheme);
+    });
+
+    
+    const savedTheme = localStorage.getItem("theme") || "light";
+    setTheme(savedTheme);
+  </script>
 
     themeToggle.addEventListener("click", () => {
       const newTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
