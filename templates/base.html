@@ -5,15 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CampusAnon</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <!-- Material Icons (only once in base.html) -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
 </head>
 <body>
   <nav class="nav">
     <div class="brand">CampusAnon</div>
     <div class="spacer"></div>
-    <form action="{{ url_for('search_posts') }}" method="get" class="search-form">
-      <input type="text" name="q" value="{{ query }}" placeholder="Search posts..." required>
-      <button type="submit">🔍</button>
-    </form>
+    
+      <form action="{{ url_for('search_posts') }}" method="get" >
+        <div class="search-wrapper">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input 
+            type="text" 
+            name="q" 
+            placeholder="Search" 
+            required
+            class="search-input"
+          />
+        </div>
+      </form>
+       <div class="spacer">
+       </div>
+
+
+
 
     <!-- Theme toggle -->
 
@@ -29,7 +46,7 @@
       <!-- Sun (light mode, hidden by default) -->
       <!-- License: MIT. Made by jaynewey: https://github.com/jaynewey/charm-icons -->
     
-      <svg id="sun-icon" width="25px" height="25px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" version="1.1" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <svg id="sun-icon" width="25px" height="25px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" version="1.1" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" style="display:none;">
         <path d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z"></path></svg>
     </button>
 
@@ -37,7 +54,7 @@
     <!-- Hamburger -->
     <button id="hamburger" class="icon-btn" aria-label="Open menu">
       <!-- License: MIT. Made by Gitlab: https://gitlab.com/gitlab-org/gitlab-svgs?ref=iconduck.com -->
-      <svg fill="currentColor" width="25px" height="25px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" stroke-width="1.5" stroke="currentColor" class="size-6">
+      <svg fill="currentColor" width="25px" height="25px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" stroke-width="1.5" stroke="currentColor" class="size-6" >
   <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
 </svg>
 
@@ -49,7 +66,7 @@
   <ul>
     <!-- Home -->
     <li>
-      <a href="#" class="sidebar-link">
+      <a href="base.html" class="sidebar-link">
         <svg height="20px" width="20px" fill="currentColor" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" >
           <g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
           <g id="SVGRepo_iconCarrier"> 
@@ -66,7 +83,7 @@
 
     <!-- Hashtags -->
     <li>
-      <a href="#" class="sidebar-link">
+      <a href="/hashtags" class="sidebar-link">
         <?xml version="1.0" encoding="utf-8"?>
         <!-- License: MIT. Made by vmware: https://github.com/vmware/clarity-assets -->
         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20px" height="20px" viewBox="0 0 36 36" fill="currentColor"  stroke="currentColor" >
@@ -85,7 +102,7 @@
 
     <!-- Notifications -->
     <li>
-      <a href="#" class="sidebar-link">
+      <a href="/notification" class="sidebar-link">
         <?xml version="1.0" encoding="utf-8"?>
           <!-- License: PD. Made by mono-company: https://github.com/mono-company/mono-icons -->
           <svg width="20px" height="20px" viewBox="0 0 24 24" class="icon" fill="currentColor" xmlns="http://www.w3.org/2000/svg" stroke="currentColor">>
@@ -94,9 +111,9 @@
       </a>
     </li>
 
-    <!-- Messages -->
+    <!-- Dev Logd -->
     <li>
-      <a href="#" class="sidebar-link">
+      <a href="/devlogs" class="sidebar-link">
         
         <?xml version="1.0" encoding="utf-8"?>
         <!-- License: MIT. Made by Gitlab: https://gitlab.com/gitlab-org/gitlab-svgs?ref=iconduck.com -->
@@ -107,21 +124,54 @@
       </a>
     </li>
   </ul>
+   <!-- Sidebar Footer -->
+  <div class="sidebar-footer">
+    <div class="footer-logo">
+      <img src="static/campuslogo.png" alt="CampusAnon Logo" class="logo" id="logo">
+      <h1>Campus Anon</h1>
+    </div>
+
+    <hr class="footer-divider">
+
+    
+    <br>
+
+    <div class="footer-credit">
+      <p>© 2025 CampusAnon v1.0</p>
+      <p>Made by @dAyan</p>
+    </div>
+  </div>
 </aside>
 
 
-  <!-- Existing Mobile Sidebar -->
-  <div id="sidebar" class="sidebar">
-    <button id="close-sidebar" class="icon-btn">✕</button>
-    <ul>
-      {% if session.get('admin_id') %}
-        <li><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
-        <li><a href="{{ url_for('admin_logout') }}">Logout</a></li>
-      {% else %}
-        <li><a href="{{ url_for('admin_login') }}">Admin Login</a></li>
-      {% endif %}
-    </ul>
+  <!-- Mobile Sidebar -->
+<div id="sidebar" class="sidebar">
+  <div class="sidebar-header">
+    <button id="close-sidebar" class="icon-btn" aria-label="Close menu">
+      ✕
+    </button>
   </div>
+
+  <!-- Mobile Search (only visible on mobile) -->
+  <form action="{{ url_for('search_posts') }}" method="get" class="sidebar-search">
+    <input type="text" name="q" placeholder="Search posts..." required>
+  </form>
+
+  <ul class="sidebar-links">
+    {% if session.get('admin_id') %}
+      <li><a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+      <li><a href="{{ url_for('admin_logout') }}">Logout</a></li>
+    {% else %}
+      <li><a href="{{ url_for('admin_login') }}">Admin Login</a></li>
+    {% endif %}
+    <li><a href="/devlogs">Dev logs</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/rules">Rules</a></li>
+    <li><a href="/faq">FAQ</a></li>
+    <li><a href="/contact">Contact</a></li>
+  </ul>
+</div>
+
   <div id="overlay" class="overlay"></div>
 
   {% with messages = get_flashed_messages(with_categories=true) %}
