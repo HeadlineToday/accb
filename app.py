@@ -14,6 +14,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from bson import ObjectId
+from bson.errors import InvalidId
 
 
 load_dotenv()
@@ -47,6 +48,7 @@ Posts = db.posts
 Banned = db.banned_words
 AdminLogs = db.admin_logs
 posts_collection = db["posts"]
+Comments = db.comments
 
 
 
@@ -127,6 +129,8 @@ def first_boot_seed_admin():
     Posts.create_index([("created_at", DESCENDING)])
     Posts.create_index([("status", ASCENDING)])
     Banned.create_index([("word", ASCENDING)], unique=True)
+    Comments.create_index([("post_id", ASCENDING), ("created_at", ASCENDING)])
+    Comments.create_index([("parent_id", ASCENDING)])
 
     if Users.count_documents({"role": {"$in": ["admin", "master_admin"]}}) == 0:
         email = os.getenv("ADMIN_EMAIL", "admin@local")
@@ -361,7 +365,106 @@ def like(post_id):
     # Send liked/unliked state only to the current user (via HTTP response)
     return jsonify({"likes": new_likes, "liked": liked})
 
+# --- Comment ---
 
+def _get_post_or_404(post_id):
+    try:
+        oid = ObjectId(post_id)
+    except (InvalidId, TypeError):
+        abort(404)
+    post = Posts.find_one({"_id": oid})
+    if not post:
+        abort(404)
+    return post, oid
+
+def _build_comment_tree(raw_comments):
+    """Turn a flat list into {top_level: [...], replies under each}."""
+    by_id = {str(c["_id"]): c for c in raw_comments}
+    for c in raw_comments:
+        c["_id"] = str(c["_id"])
+        pid = c.get("parent_id")
+        c["replies"] = []
+        if pid is not None:
+            c["parent_id"] = str(pid)
+
+    roots = []
+    for c in raw_comments:
+        if c.get("parent_id"):
+            parent = by_id.get(c["parent_id"])
+            if parent:
+                parent["replies"].append(c)
+        else:
+            roots.append(c)
+    # sort children by created_at ascending (oldest first)
+    def _sort_branch(node):
+        node["replies"].sort(key=lambda x: x["created_at"])
+        for r in node["replies"]:
+            _sort_branch(r)
+    for r in roots:
+        _sort_branch(r)
+    # final sort roots too
+    roots.sort(key=lambda x: x["created_at"])
+    return roots
+
+
+
+
+
+# === Comment Page (view) ===
+@app.route("/post/<post_id>/comments", methods=["GET"])
+def view_comments(post_id):
+    user = current_user()
+    post, post_oid = _get_post_or_404(post_id)
+
+    raw = list(
+        Comments.find({"post_id": post_oid})
+        .sort("created_at", ASCENDING)
+    )
+    comments = _build_comment_tree(raw)
+
+    return render_template(
+        "comments.html",
+        post=post,
+        comments=comments,
+        user=user
+    )
+
+# === Add Comment or Reply (same endpoint; parent_id optional) ===
+@app.post("/post/<post_id>/comments")
+def add_comment(post_id):
+    user = current_user()
+    if not user:
+        abort(401)
+    if user.get("status") in ("banned",):
+        flash("Action not allowed.", "error")
+        return redirect(url_for("view_comments", post_id=post_id))
+
+    post, post_oid = _get_post_or_404(post_id)
+
+    text = (request.form.get("text") or "").strip()
+    if not text:
+        flash("Comment cannot be empty.", "error")
+        return redirect(url_for("view_comments", post_id=post_id))
+
+    parent_id_raw = request.form.get("parent_id")
+    parent_oid = None
+    if parent_id_raw:
+        try:
+            parent_oid = ObjectId(parent_id_raw)
+        except (InvalidId, TypeError):
+            parent_oid = None  # if invalid, treat as top-level
+
+    doc = {
+        "post_id": post_oid,
+        "user_id": str(user["_id"]),
+        "anonymous_tag": user.get("anonymous_tag"),
+        "text": text,
+        "parent_id": parent_oid,  # None => top-level
+        "created_at": datetime.utcnow(),
+    }
+    Comments.insert_one(doc)
+
+    return redirect(url_for("view_comments", post_id=post_id))
 
 
 
