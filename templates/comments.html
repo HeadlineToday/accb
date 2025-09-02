@@ -63,10 +63,11 @@
   <h2>Comments</h2>
 
   <!-- Add new comment -->
-  <form action="{{ url_for('add_comment', post_id=post._id) }}" method="post" class="comment-form">
-    <textarea name="text" rows="2" placeholder="Write a comment..."></textarea>
-    <button class="btn primary" type="submit">Post</button>
-  </form>
+<form method="post" action="{{ url_for('add_comment', post_id=post._id) }}" class="comment-form">
+  <textarea name="text" rows="2" placeholder="Write a comment..."></textarea>
+  <button class="btn primary" type="submit">Post</button>
+</form>
+
 
   <!-- Render comments -->
   {% macro render_comment(c) %}
@@ -75,11 +76,12 @@
       <p>{{ c.text }}</p>
 
       <!-- Reply form -->
-      <form action="{{ url_for('add_comment', post_id=post._id) }}" method="post" class="reply-form">
+      <form method="post" action="{{ url_for('add_comment', post_id=post._id) }}" class="reply-form">
         <input type="hidden" name="parent_id" value="{{ c._id }}">
         <textarea name="text" rows="1" placeholder="Reply..."></textarea>
         <button class="btn small" type="submit">Reply</button>
       </form>
+
 
       <!-- Render replies -->
       {% if c.replies %}
