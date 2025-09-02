@@ -129,7 +129,7 @@ def first_boot_seed_admin():
     Posts.create_index([("created_at", DESCENDING)])
     Posts.create_index([("status", ASCENDING)])
     Banned.create_index([("word", ASCENDING)], unique=True)
-    Comments.create_index([("post_id", ASCENDING), ("created_at", ASCENDING)])
+    Comments.create_index([("post_id", ASCENDING), ("created_at", DESCENDING)])
     Comments.create_index([("parent_id", ASCENDING)])
 
     if Users.count_documents({"role": {"$in": ["admin", "master_admin"]}}) == 0:
