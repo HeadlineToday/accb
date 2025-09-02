@@ -1,49 +1,5 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Comments</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  <style>
-    .comment-card { border: 1px solid #ddd; border-radius: 10px; padding: 12px; margin: 8px 0; }
-    .reply { margin-left: 16px; border-left: 2px solid #eee; padding-left: 12px; }
-    .meta { font-size: 12px; opacity: 0.7; }
-    .actions { margin-top: 6px; }
-    .reply-form { margin-top: 8px; }
-  </style>
-</head>
-<body>
-  <div class="container" style="max-width:720px; margin: 0 auto; padding: 16px;">
-    <!-- Post at the top -->
-    <article class="comment-card" style="background: var(--card-bg, #fafafa);">
-      <div class="meta">
-        <strong>{{ post.anonymous_tag }}</strong>
-        <span>•</span>
-        <time>{{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</time>
-      </div>
-      {% if post.text %}
-        <p style="white-space:pre-wrap">{{ post.text }}</p>
-      {% endif %}
-      {% if post.image_url %}
-        <div><img src="{{ post.image_url }}" alt="image" style="max-width:100%; border-radius:8px;"></div>
-      {% endif %}
-    </article>
+{% extends "base.html" %}
 
-    <!-- New comment box -->
-    <section class="comment-card">
-      <form method="post" action="{{ url_for('add_comment', post_id=str(post['_id'])) }}">
-        <input type="hidden" name="parent_id" value="">
-        <textarea name="text" placeholder="Write a comment..." rows="3" style="width:100%;" required></textarea>
-        <div style="margin-top:8px;">
-          <button type="submit">Post Comment</button>
-          <a href="{{ url_for('home') }}" style="margin-left:8px;">Back</a>
-        </div>
-      </form>
-    </section>
-
-    <!-- Comments list -->
-    {% extends "base.html" %}
 {% block content %}
 <section class="card">
   <header class="card-head">
@@ -63,11 +19,11 @@
   <h2>Comments</h2>
 
   <!-- Add new comment -->
-<form method="post" action="{{ url_for('add_comment', post_id=post._id) }}" class="comment-form">
-  <textarea name="text" rows="2" placeholder="Write a comment..."></textarea>
-  <button class="btn primary" type="submit">Post</button>
-</form>
-
+  <form method="post" action="{{ url_for('add_comment', post_id=post._id) }}" class="comment-form">
+    <textarea name="text" rows="2" placeholder="Write a comment..." required></textarea>
+    <button class="btn primary" type="submit">Post</button>
+    <a href="{{ url_for('home') }}" class="btn">Back</a>
+  </form>
 
   <!-- Render comments -->
   {% macro render_comment(c) %}
@@ -81,7 +37,6 @@
         <textarea name="text" rows="1" placeholder="Reply..."></textarea>
         <button class="btn small" type="submit">Reply</button>
       </form>
-
 
       <!-- Render replies -->
       {% if c.replies %}
@@ -112,6 +67,3 @@
   .btn.small { padding: .25rem .5rem; font-size: .8em; }
 </style>
 {% endblock %}
-
-</body>
-</html>
