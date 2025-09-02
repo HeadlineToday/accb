@@ -22,7 +22,7 @@
   <form method="post" action="{{ url_for('add_comment', post_id=post._id) }}" class="comment-form">
     <textarea name="text" rows="2" placeholder="Write a comment..." required></textarea>
     <button class="btn primary" type="submit">Post</button>
-    <a href="{{ url_for('home') }}" class="btn primary">Back</a>
+    <button class="btn primary" type="button" onclick="window.location.href='/';">Back</button>
   </form>
 
   <!-- Render comments (only one level of replies) -->
