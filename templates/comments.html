@@ -29,7 +29,7 @@
   {% for c in comments %}
     <div class="comment">
       <p class="commentp" ><img src="{{ c.avatar_url }}" alt="avatar" class="commentavt"><b>{{ c.anonymous_tag }}</b> · <span class="time">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</span></p>
-      <p>{{ c.text }}</p>
+      <p class="commentedtext">{{ c.text }}</p>
 
       <!-- Reply form (only for main comments) -->
       {% if not c.parent_id %}
@@ -46,7 +46,7 @@
           {% for r in c.replies %}
             <div class="reply">
               <p class="replyp" ><img src="{{ r.avatar_url }}" alt="avatar" class="replyavt"><b>{{ r.anonymous_tag }}</b> · <span class="time">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</span></p>
-              <p>{{ r.text }}</p>
+              <p class="repliedtext">{{ r.text }}</p>
               <!-- 🔒 No reply form here -->
             </div>
           {% endfor %}
