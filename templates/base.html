@@ -244,15 +244,6 @@
     const savedTheme = localStorage.getItem("theme") || "light";
     setTheme(savedTheme);
 
-    themeToggle.addEventListener("click", () => {
-      const newTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-      setTheme(newTheme);
-    });
-
-    
-    const savedTheme = localStorage.getItem("theme") || "light";
-    setTheme(savedTheme);
-
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/static/sw.js")
