@@ -41,15 +41,7 @@ textarea{width:100%;background:#1f2633;border:1px solid #1f2633;color:var(--text
 .row{display:flex;gap:8px;align-items:center;margin:8px 0}
 .chips{display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:8px 0;list-style:none}
 
-.comment{
-  margin-top:10px;
-  padding:10px;
-  background:var(--card);
-  border-radius:16px;
-  border-bottom:none;
-}
-  
-  .commentp{
+.commentp{
     display:inline-flex;
     align-items:center;
     gap:5px;
@@ -62,16 +54,22 @@ textarea{width:100%;background:#1f2633;border:1px solid #1f2633;color:var(--text
 
   .replies{
     margin-left: 10px;
-    border-left: 2px solid #ccc;
+    border-left: 2px dotted #ccc;
     padding-left: 15px; 
   }
-
+  .commentedtext{
+    padding:10px;
+    border-radius:8px;
+    background:#6c757d;
+  }
+  .repliedtext{
+    padding-bottom:10px;
+  }
   .reply{
     margin-top:10px;
     background:#6c757d;
-    border-radius:16px;
+    border-radius:14px;
     padding:0px 10px;
-    margin-left: 20px; 
   }
   
   
@@ -79,14 +77,21 @@ textarea{width:100%;background:#1f2633;border:1px solid #1f2633;color:var(--text
     display:inline-flex;
     align-items:center;
     gap:5px;
+    margin-top: 10px;
+    margin-bottom: 0px;
+  }
+  .reply .p "r.text"{
+    margin-top:0px;
+    padding:50px;
   }
   .replyavt{
     height:40px;
     width:40px;
     border-radius:50%;
   }
+
   .comment-form, .reply-form { margin-top: .5rem; }
-  .reply-form textarea { font-size: .9em; }
+  .reply-form textarea { font-size: 1em; margin-bottom:5px; }
 
 /* === Light & Dark Mode === */
 :root[data-theme="light"] {
