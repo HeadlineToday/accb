@@ -62,11 +62,10 @@
       <span class="heart">♥</span>
       <span class="like-text">{{ p.likes or 0 }}</span>
     </button>
+  <!-- Comment button -->
+    <a class="btn" href="{{ url_for('view_comments', post_id=p._id) }}">💬 {{ p.comment_count or 0 }}</a>
     </form>
-<!-- Comment button -->
-  <button class="btn" type="button" onclick="window.location.href='{{ url_for('view_comments', post_id=p._id) }}'>">💬 {{ p.comment_count or 0 }}</button>
-
-  </footer>
+ </footer>
 
 </article>
   {% else %}
