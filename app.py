@@ -451,8 +451,14 @@ def add_comment(post_id):
     if parent_id_raw:
         try:
             parent_oid = ObjectId(parent_id_raw)
+            # ✅ Prevent nested replies (reply-to-reply)
+            parent_comment = Comments.find_one({"_id": parent_oid})
+            if parent_comment and parent_comment.get("parent_id"):
+                # force reply to top-level comment
+                parent_oid = parent_comment["parent_id"]
         except (InvalidId, TypeError):
             parent_oid = None  # if invalid, treat as top-level
+
 
     doc = {
         "post_id": post_oid,
