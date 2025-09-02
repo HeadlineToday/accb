@@ -386,6 +386,10 @@ def _build_comment_tree(raw_comments):
         c["replies"] = []
         if pid is not None:
             c["parent_id"] = str(pid)
+            
+        # ✅ Add avatar_url for each comment based on tag
+        tag = c.get("anonymous_tag", "Anon")
+        c["avatar_url"] = f"https://api.dicebear.com/9.x/thumbs/svg?seed={tag}"
 
     roots = []
     for c in raw_comments:
