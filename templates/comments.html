@@ -69,23 +69,48 @@
   const socket = io();
 
   socket.on("new_comment", data => {
-    if (data.post_id !== "{{ post._id }}") return; // ignore other posts
+  if (data.post_id !== "{{ post._id }}") return;
 
-    // Build new comment element (match your existing structure)
-    const el = document.createElement("div");
+  // Build HTML
+  const el = document.createElement("div");
+  if (data.parent_id) {
+    el.className = "reply";
+    el.innerHTML = `
+      <p class="replyp">
+        <img src="https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(data.anonymous_tag)}" class="replyavt">
+        <b>${data.anonymous_tag}</b> · 
+        <span class="time">${new Date(data.created_at).toLocaleString()}</span>
+      </p>
+      <p class="repliedtext">${data.text}</p>
+    `;
+
+    // find parent comment's .replies container
+    let parent = document.querySelector(`.comment input[name="parent_id"][value="${data.parent_id}"]`);
+    if (parent) {
+      // go up to the comment block
+      const commentDiv = parent.closest(".comment");
+      let repliesDiv = commentDiv.querySelector(".replies");
+      if (!repliesDiv) {
+        repliesDiv = document.createElement("div");
+        repliesDiv.className = "replies";
+        commentDiv.appendChild(repliesDiv);
+      }
+      repliesDiv.appendChild(el);
+    }
+  } else {
     el.className = "comment";
     el.innerHTML = `
       <p class="commentp">
-        <img src="https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(data.anonymous_tag)}" 
-             alt="avatar" class="commentavt">
+        <img src="https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(data.anonymous_tag)}" class="commentavt">
         <b>${data.anonymous_tag}</b> · 
         <span class="time">${new Date(data.created_at).toLocaleString()}</span>
       </p>
       <p class="commentedtext">${data.text}</p>
     `;
-
     document.getElementById("comments").appendChild(el);
-  });
+  }
+});
+
 </script>
 
 
