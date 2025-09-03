@@ -450,16 +450,14 @@ def add_comment(post_id):
     user = current_user()
     if not user:
         abort(401)
-    if user.get("status") in ("banned",):
-        flash("Action not allowed.", "error")
-        return redirect(url_for("view_comments", post_id=post_id))
+    if user.get("status") == "banned":
+        return jsonify({"error": "banned"}), 403
 
     post, post_oid = _get_post_or_404(post_id)
 
     text = (request.form.get("text") or "").strip()
     if not text:
-        flash("Comment cannot be empty.", "error")
-        return redirect(url_for("view_comments", post_id=post_id))
+        return jsonify({"error": "empty"}), 400
 
     parent_id_raw = request.form.get("parent_id")
     parent_oid = None
@@ -483,16 +481,12 @@ def add_comment(post_id):
     res = Comments.insert_one(doc)
     comment_id = str(res.inserted_id)
 
-    # increment post counter
-    # increment post counter only for top-level comments
+    # update comment_count only for top-level
     if parent_oid is None:
         Posts.update_one({"_id": post_oid}, {"$inc": {"comment_count": 1}})
     new_count = Posts.find_one({"_id": post_oid}).get("comment_count", 0)
 
-
-
-    # broadcast live
-    socketio.emit("new_comment", {
+    payload = {
         "post_id": str(post_oid),
         "comment_id": comment_id,
         "anonymous_tag": user.get("anonymous_tag"),
@@ -500,10 +494,17 @@ def add_comment(post_id):
         "created_at": doc["created_at"].isoformat(),
         "parent_id": str(parent_oid) if parent_oid else None,
         "comment_count": new_count,
-    })
+    }
+
+    # broadcast so *everyone* sees it
+    socketio.emit("new_comment", payload)
+
+    # if it's AJAX, return JSON; else normal redirect
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return jsonify({"ok": True})
+        return jsonify(payload)
+
     return redirect(url_for("view_comments", post_id=post_id))
+
 
 
 
