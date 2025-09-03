@@ -282,7 +282,8 @@ def create_post():
         "status": "active",
         "created_at": datetime.utcnow(),
         "likes": 0,
-        "liked_by": []
+        "liked_by": [],
+        "comment_count": 0
     }
     
     # Insert & capture the new _id
@@ -455,14 +456,11 @@ def add_comment(post_id):
     if parent_id_raw:
         try:
             parent_oid = ObjectId(parent_id_raw)
-            # ✅ Prevent nested replies (reply-to-reply)
             parent_comment = Comments.find_one({"_id": parent_oid})
             if parent_comment and parent_comment.get("parent_id"):
-                # force reply to top-level comment
                 parent_oid = parent_comment["parent_id"]
         except (InvalidId, TypeError):
-            parent_oid = None  # if invalid, treat as top-level
-
+            parent_oid = None
 
     doc = {
         "post_id": post_oid,
@@ -472,9 +470,40 @@ def add_comment(post_id):
         "parent_id": parent_oid,  # None => top-level
         "created_at": datetime.utcnow(),
     }
-    Comments.insert_one(doc)
+    res = Comments.insert_one(doc)
+    inserted_id = str(res.inserted_id)
 
+    # Increment comment_count on the post
+    Posts.update_one({"_id": post_oid}, {"$inc": {"comment_count": 1}})
+
+    # Read back new comment_count
+    post_after = Posts.find_one({"_id": post_oid}, {"comment_count": 1})
+    new_count = int(post_after.get("comment_count", 0))
+
+    # Build payload for client broadcast (serialize created_at)
+    payload = {
+        "post_id": str(post_oid),
+        "comment": {
+            "_id": inserted_id,
+            "user_id": str(user["_id"]),
+            "anonymous_tag": user.get("anonymous_tag"),
+            "text": text,
+            "parent_id": str(parent_oid) if parent_oid else None,
+            "created_at": doc["created_at"].isoformat(),
+            "avatar_url": f"https://api.dicebear.com/9.x/thumbs/svg?seed={user.get('anonymous_tag')}"
+        },
+        "comment_count": new_count
+    }
+
+    # Broadcast the new comment to everyone viewing this post
+    socketio.emit("comment_added", payload)
+
+    # If client expects JSON (AJAX), return JSON; otherwise redirect (fallback)
+    wants_json = "application/json" in (request.headers.get("Accept") or "")
+    if wants_json or request.is_xhr:
+        return jsonify({"success": True, "payload": payload})
     return redirect(url_for("view_comments", post_id=post_id))
+
 
 
 
