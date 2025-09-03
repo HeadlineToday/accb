@@ -19,23 +19,19 @@
   <h2>Comments</h2>
 
   <!-- Add new comment -->
-  <form method="post"
-      action="{{ url_for('add_comment', post_id=post._id) }}"
-      id="comment-form"
-      data-post-id="{{ post._id }}"
-      class="comment-form">
-  <textarea name="text" rows="2" placeholder="Write a comment..." required class="comtextarea"></textarea>
-  <button class="btn primary" type="submit">Post</button>
-  <button class="btn primary" type="button" onclick="window.location.href='/';">Back</button>
-</form>
+  <form method="post" action="{{ url_for('add_comment', post_id=post._id) }}" class="comment-form">
+    <textarea name="text" rows="2" placeholder="Write a comment..." required class="comtextarea"></textarea>
+    <button class="btn primary" type="submit">Post</button>
+    <button class="btn primary" type="button" onclick="window.location.href='/';">Back</button>
+  </form>
 
-<!-- Add this wrapper so live comments can be appended -->
-<div id="comments-root" data-post-id="{{ post._id }}">
+  <!-- Render comments (only one level of replies) -->
   {% for c in comments %}
-    <div class="comment-card" data-comment-id="{{ c._id }}">
-      <p class="commentp"><img src="{{ c.avatar_url }}" class="commentavt"> <b>{{ c.anonymous_tag }}</b> · <span class="time">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</span></p>
+    <div class="comment">
+      <p class="commentp" ><img src="{{ c.avatar_url }}" alt="avatar" class="commentavt"><b>{{ c.anonymous_tag }}</b> · <span class="time">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</span></p>
       <p class="commentedtext">{{ c.text }}</p>
 
+      <!-- Reply form (only for main comments) -->
       {% if not c.parent_id %}
       <form method="post" action="{{ url_for('add_comment', post_id=post._id) }}" class="reply-form">
         <input type="hidden" name="parent_id" value="{{ c._id }}">
@@ -44,50 +40,39 @@
       </form>
       {% endif %}
 
+      <!-- Show replies -->
       {% if c.replies %}
         <div class="replies">
           {% for r in c.replies %}
-            <div class="comment-card" data-comment-id="{{ r._id }}">
-              <p class="replyp"><img src="{{ r.avatar_url }}" class="replyavt"> <b>{{ r.anonymous_tag }}</b> · <span class="time">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</span></p>
+            <div class="reply">
+              <p class="replyp" ><img src="{{ r.avatar_url }}" alt="avatar" class="replyavt"><b>{{ r.anonymous_tag }}</b> · <span class="time">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</span></p>
               <p class="repliedtext">{{ r.text }}</p>
+              <!-- 🔒 No reply form here -->
             </div>
           {% endfor %}
         </div>
       {% endif %}
     </div>
   {% endfor %}
-</div>
-
 </section>
 
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
-  document.addEventListener("submit", e => {
-    const f = e.target;
-    if (f && f.id === "comment-form") {
-      e.preventDefault();
-      const postId = f.dataset.postId;
-      const formData = new FormData(f);
+  const socket = io();
 
-      fetch(`/post/${postId}/comments`, {
-        method: "POST",
-        body: formData,
-        headers: {"Accept": "application/json"},
-        credentials: "same-origin"
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res && res.success) {
-          const ta = f.querySelector("textarea[name='text']");
-          if (ta) ta.value = "";
-        } else {
-          window.location.reload();
-        }
-      })
-      .catch(err => {
-        console.error("Comment submit failed", err);
-        window.location.reload();
-      });
-    }
+  socket.on("new_comment", data => {
+    if (data.post_id !== "{{ post._id }}") return; // ignore other posts
+
+    // Build new comment element
+    const el = document.createElement("div");
+    el.className = "comment";
+    el.innerHTML = `
+      <strong>${data.anonymous_tag}</strong>
+      <span>${new Date(data.created_at).toLocaleString()}</span>
+      <p>${data.text}</p>
+    `;
+
+    document.getElementById("comments").appendChild(el);
   });
 </script>
 
