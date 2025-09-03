@@ -56,4 +56,36 @@
   {% endfor %}
 </section>
 
+<script>
+  document.addEventListener("submit", e => {
+    const f = e.target;
+    if (f && f.id === "comment-form") {
+      e.preventDefault();
+      const postId = f.dataset.postId;
+      const formData = new FormData(f);
+
+      fetch(`/post/${postId}/comments`, {
+        method: "POST",
+        body: formData,
+        headers: {"Accept": "application/json"},
+        credentials: "same-origin"
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res && res.success) {
+          const ta = f.querySelector("textarea[name='text']");
+          if (ta) ta.value = "";
+        } else {
+          window.location.reload();
+        }
+      })
+      .catch(err => {
+        console.error("Comment submit failed", err);
+        window.location.reload();
+      });
+    }
+  });
+</script>
+
+
 {% endblock %}
