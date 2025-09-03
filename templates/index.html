@@ -220,14 +220,18 @@
           : "No file chosen";
       });  
   
-  socket.on("new_comment", data => {
-    const btn = document.querySelector(
-      `.comment-btn[data-post-id="${data.post_id}"]`
-    );
-    if (btn) {
-      btn.textContent = `💬 ${data.comment_count}`;
+ 
+
+  socket.on("connect", async () => {
+  try {
+    const res = await fetch("/api/comment_counts");
+    const data = await res.json();
+    for (const [postId, count] of Object.entries(data)) {
+      const btn = document.querySelector(`.comment-btn[data-post-id="${postId}"]`);
+      if (btn) btn.textContent = `💬 ${count}`;
     }
-  });
+  } catch(e) { console.error("Resync failed:", e); }
+});
 
 
 
