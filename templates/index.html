@@ -63,13 +63,13 @@
       <span class="like-text">{{ p.likes or 0 }}</span>
     </button>
 <!-- Comment button (styled same as like) -->
-    <button class="btn comment-btn" type="button"
+   
+    </form>
+     <button class="btn comment-btn" type="button"
             data-post-id="{{ p._id }}"
             onclick="window.location.href='{{ url_for('view_comments', post_id=p._id) }}'">
       💬 <span class="comment-count">{{ p.comment_count or 0 }}</span>
     </button>
-    </form>
-    
  </footer>
 
 </article>
@@ -120,12 +120,13 @@
             <span class="heart">♥</span>
             <span class="like-text">${p.likes || 0}</span>
           </button>
-          <button class="btn comment-btn" type="button"
+          
+        </form>
+        <button class="btn comment-btn" type="button"
             data-post-id="{{ p._id }}"
             onclick="window.location.href='{{ url_for('view_comments', post_id=p._id) }}'">
-            💬 <span class="comment-count">{{ p.comment_count or 0 }}</span>
+            💬 <span class="comment-count">{{ p.comment_count || 0 }}</span>
           </button>
-        </form>
       </footer>`;
     return el;
   }
