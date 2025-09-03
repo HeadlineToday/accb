@@ -98,18 +98,26 @@
       repliesDiv.appendChild(el);
     }
   } else {
-    el.className = "comment";
-    el.innerHTML = `
-      <p class="commentp">
-        <img src="https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(data.anonymous_tag)}" class="commentavt">
-        <b>${data.anonymous_tag}</b> · 
-        <span class="time">${new Date(data.created_at).toLocaleString()}</span>
-      </p>
-      <p class="commentedtext">${data.text}</p>
-    `;
-    document.getElementById("comments").appendChild(el);
-  }
-});
+  el.className = "comment";
+  el.innerHTML = `
+    <p class="commentp">
+      <img src="https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(data.anonymous_tag)}" class="commentavt">
+      <b>${data.anonymous_tag}</b> · 
+      <span class="time">${new Date(data.created_at).toLocaleString()}</span>
+    </p>
+    <p class="commentedtext">${data.text}</p>
+
+    <form method="post" action="/posts/${data.post_id}/comments" class="reply-form">
+      <input type="hidden" name="parent_id" value="${data.comment_id}">
+      <textarea name="text" rows="1" placeholder="Reply..." required class="comtextarea"></textarea>
+      <button class="btn small" type="submit">Reply</button>
+    </form>
+
+    <div class="replies"></div>
+  `;
+  document.getElementById("comments").appendChild(el);
+}
+
 
 </script>
 
