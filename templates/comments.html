@@ -25,36 +25,44 @@
     <button class="btn primary" type="button" onclick="window.location.href='/';">Back</button>
   </form>
 
-  <!-- Render comments (only one level of replies) -->
-  {% for c in comments %}
-    <div class="comment">
-      <p class="commentp" ><img src="{{ c.avatar_url }}" alt="avatar" class="commentavt"><b>{{ c.anonymous_tag }}</b> · <span class="time">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</span></p>
-      <p class="commentedtext">{{ c.text }}</p>
+  <!-- 👇 Add a wrapper with id="comments" -->
+  <div id="comments">
+    {% for c in comments %}
+      <div class="comment">
+        <p class="commentp">
+          <img src="{{ c.avatar_url }}" alt="avatar" class="commentavt">
+          <b>{{ c.anonymous_tag }}</b> · 
+          <span class="time">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+        </p>
+        <p class="commentedtext">{{ c.text }}</p>
 
-      <!-- Reply form (only for main comments) -->
-      {% if not c.parent_id %}
-      <form method="post" action="{{ url_for('add_comment', post_id=post._id) }}" class="reply-form">
-        <input type="hidden" name="parent_id" value="{{ c._id }}">
-        <textarea name="text" rows="1" placeholder="Reply..." required class="comtextarea"></textarea>
-        <button class="btn small" type="submit">Reply</button>
-      </form>
-      {% endif %}
+        {% if not c.parent_id %}
+        <form method="post" action="{{ url_for('add_comment', post_id=post._id) }}" class="reply-form">
+          <input type="hidden" name="parent_id" value="{{ c._id }}">
+          <textarea name="text" rows="1" placeholder="Reply..." required class="comtextarea"></textarea>
+          <button class="btn small" type="submit">Reply</button>
+        </form>
+        {% endif %}
 
-      <!-- Show replies -->
-      {% if c.replies %}
+        {% if c.replies %}
         <div class="replies">
           {% for r in c.replies %}
-            <div class="reply">
-              <p class="replyp" ><img src="{{ r.avatar_url }}" alt="avatar" class="replyavt"><b>{{ r.anonymous_tag }}</b> · <span class="time">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</span></p>
-              <p class="repliedtext">{{ r.text }}</p>
-              <!-- 🔒 No reply form here -->
-            </div>
+          <div class="reply">
+            <p class="replyp">
+              <img src="{{ r.avatar_url }}" alt="avatar" class="replyavt">
+              <b>{{ r.anonymous_tag }}</b> · 
+              <span class="time">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </p>
+            <p class="repliedtext">{{ r.text }}</p>
+          </div>
           {% endfor %}
         </div>
-      {% endif %}
-    </div>
-  {% endfor %}
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
 </section>
+
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
@@ -63,18 +71,23 @@
   socket.on("new_comment", data => {
     if (data.post_id !== "{{ post._id }}") return; // ignore other posts
 
-    // Build new comment element
+    // Build new comment element (match your existing structure)
     const el = document.createElement("div");
     el.className = "comment";
     el.innerHTML = `
-      <strong>${data.anonymous_tag}</strong>
-      <span>${new Date(data.created_at).toLocaleString()}</span>
-      <p>${data.text}</p>
+      <p class="commentp">
+        <img src="https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(data.anonymous_tag)}" 
+             alt="avatar" class="commentavt">
+        <b>${data.anonymous_tag}</b> · 
+        <span class="time">${new Date(data.created_at).toLocaleString()}</span>
+      </p>
+      <p class="commentedtext">${data.text}</p>
     `;
 
     document.getElementById("comments").appendChild(el);
   });
 </script>
+
 
 
 {% endblock %}
