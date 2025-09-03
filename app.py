@@ -498,7 +498,8 @@ def add_comment(post_id):
         "parent_id": str(parent_oid) if parent_oid else None,
         "comment_count": new_count,
     })
-
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"ok": True})
     return redirect(url_for("view_comments", post_id=post_id))
 
 
