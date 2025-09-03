@@ -63,15 +63,14 @@
       <span class="like-text">{{ p.likes or 0 }}</span>
     </button>
 <!-- Comment button (styled same as like) -->
-   
+    <button class="btn comment-btn"
+            type="button"
+            data-post-id="{{ p._id }}"
+            onclick="window.location.href='{{ url_for('view_comments', post_id=p._id) }}'">
+      💬 {{ p.comment_count or 0 }}
+    </button>
     </form>
-     <button class="btn comment-btn" type="button"
-          data-post-id="{{ p._id }}"
-          onclick="window.location.href='{{ url_for('view_comments', post_id=p._id) }}'">
-          💬 <span class="comment-count">{{ p.comment_count or 0 }}</span>
-      </button>
-
-
+    
  </footer>
 
 </article>
@@ -122,14 +121,11 @@
             <span class="heart">♥</span>
             <span class="like-text">${p.likes || 0}</span>
           </button>
-          
         </form>
-        <button class="btn comment-btn" type="button"
-    data-post-id="${p._id}"
-    onclick="window.location.href='/comments/${p._id}'">
-    💬 <span class="comment-count">${p.comment_count || 0}</span>
-</button>
-
+        
+        <a class="btn btn-sm" href="/post/${p._id}/comments">
+        💬 Comment
+      </a>
       </footer>`;
     return el;
   }
@@ -223,54 +219,17 @@
           ? input.files[0].name 
           : "No file chosen";
       });  
-
-  const socket = io({transports: ['websocket', 'polling']});
-
-  // Update like counter everywhere
-  function updateLikeCount(post_id, likes) {
-    const likeBtn = document.querySelector(`[data-post-id="${post_id}"] .like-text`);
-    if (likeBtn) likeBtn.textContent = likes;
-  }
-
-  // Update comment count everywhere
-  function updateCommentCount(post_id, count) {
-    const commentBtn = document.querySelector(`.comment-btn[data-post-id="${post_id}"] .comment-count`);
-    if (commentBtn) commentBtn.textContent = count;
-  }
-
-
-  // Comment updates
-  socket.on("comment_added", data => {
-    updateCommentCount(data.post_id, data.comment_count);
-
-    // If we're on the comments page for this post, append new comment
-    const root = document.getElementById("comments-root");
-    if (root && root.dataset.postId === data.post_id) {
-      const c = data.comment;
-      const div = document.createElement("div");
-      div.className = "comment-card";
-      div.dataset.commentId = c._id;
-      div.innerHTML = `
-        <div class="avatar"><img src="${c.avatar_url}" alt="avatar"></div>
-        <div class="body">
-          <div class="meta"><strong>${c.anonymous_tag || "Anon"}</strong> · 
-          <small>${new Date(c.created_at).toLocaleString()}</small></div>
-          <div class="text">${escapeHtml(c.text)}</div>
-        </div>
-      `;
-      root.appendChild(div);
+  
+  socket.on("new_comment", data => {
+    const btn = document.querySelector(
+      `.comment-btn[data-post-id="${data.post_id}"]`
+    );
+    if (btn) {
+      btn.textContent = `💬 ${data.comment_count}`;
     }
   });
 
-  // Escape unsafe text
-  function escapeHtml(unsafe) {
-    return unsafe
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
-  }
+
 
 </script>
 
