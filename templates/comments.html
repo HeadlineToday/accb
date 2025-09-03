@@ -61,79 +61,31 @@
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
-  const socket = io();
+document.addEventListener("DOMContentLoaded", () => {
+  // Handle comment + reply forms via AJAX
+  document.querySelectorAll(".comment-form, .reply-form").forEach(form => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  // --- AJAX submit helpers ---
-  async function sendComment(e, postId) {
-    e.preventDefault();
-    const form = e.target;
-    const fd = new FormData(form);
-    let res = await fetch(`/post/${postId}/comments`, {
-      method: "POST",
-      body: fd,
-      headers: { "X-Requested-With": "XMLHttpRequest" }
-    });
-    if (res.ok) form.reset();
-    return false;
-  }
+      const formData = new FormData(form);
+      const res = await fetch(form.action, {
+        method: "POST",
+        body: formData,
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
 
-  async function sendReply(e, postId, parentId) {
-    e.preventDefault();
-    const form = e.target;
-    const fd = new FormData(form);
-    fd.append("parent_id", parentId);
-    let res = await fetch(`/post/${postId}/comments`, {
-      method: "POST",
-      body: fd,
-      headers: { "X-Requested-With": "XMLHttpRequest" }
-    });
-    if (res.ok) form.reset();
-    return false;
-  }
-
-  // --- Real-time updates ---
-  socket.on("new_comment", data => {
-    if (data.post_id !== "{{ post._id }}") return;
-
-    if (data.parent_id) {
-      // Reply
-      const reply = document.createElement("div");
-      reply.className = "reply";
-      reply.innerHTML = `
-        <p class="replyp">
-          <img src="https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(data.anonymous_tag)}" class="replyavt">
-          <b>${data.anonymous_tag}</b> · 
-          <span class="time">${new Date(data.created_at).toLocaleString()}</span>
-        </p>
-        <p class="repliedtext">${data.text}</p>
-      `;
-      const parent = document.querySelector(\`.comment form.reply-form[onsubmit*="'${data.parent_id}'"]\`);
-      if (parent) {
-        const commentDiv = parent.closest(".comment");
-        const repliesDiv = commentDiv.querySelector(".replies");
-        repliesDiv.appendChild(reply);
+      if (!res.ok) {
+        console.error("Failed to post comment");
+        return;
       }
-    } else {
-      // Top-level comment
-      const comment = document.createElement("div");
-      comment.className = "comment";
-      comment.innerHTML = `
-        <p class="commentp">
-          <img src="https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(data.anonymous_tag)}" class="commentavt">
-          <b>${data.anonymous_tag}</b> · 
-          <span class="time">${new Date(data.created_at).toLocaleString()}</span>
-        </p>
-        <p class="commentedtext">${data.text}</p>
 
-        <form class="reply-form" onsubmit="return sendReply(event, '{{ post._id }}', '${data.comment_id}')">
-          <textarea name="text" rows="1" placeholder="Reply..." required class="comtextarea"></textarea>
-          <button class="btn small" type="submit">Reply</button>
-        </form>
-
-        <div class="replies"></div>
-      `;
-      document.getElementById("comments").appendChild(comment);
-    }
+      const data = await res.json();
+      // The socket will also broadcast, but we can inject immediately for the poster:
+      socket.emit("new_comment", data); 
+      form.reset();
+    });
   });
+});
 </script>
+
 {% endblock %}
