@@ -15,6 +15,9 @@ from werkzeug.utils import secure_filename
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from bson import ObjectId
 from bson.errors import InvalidId
+import eventlet
+eventlet.monkey_patch()
+
 
 
 load_dotenv()
