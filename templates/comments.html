@@ -35,7 +35,7 @@
           <span class="time">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
         </p>
         <p class="commentedtext">{{ c.text }}</p>
-
+    
         {% if not c.parent_id %}
         <form method="post" action="{{ url_for('add_comment', post_id=post._id) }}" class="reply-form">
           <input type="hidden" name="parent_id" value="{{ c._id }}">
@@ -43,8 +43,8 @@
           <button class="btn small" type="submit">Reply</button>
         </form>
         {% endif %}
-
-        {% if c.replies %}
+    
+        <!-- Always render replies container -->
         <div class="replies">
           {% for r in c.replies %}
           <div class="reply">
@@ -57,9 +57,9 @@
           </div>
           {% endfor %}
         </div>
-        {% endif %}
       </div>
-    {% endfor %}
+{% endfor %}
+
   </div>
 </section>
 
