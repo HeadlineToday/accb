@@ -481,9 +481,11 @@ def add_comment(post_id):
     comment_id = str(res.inserted_id)
 
     # increment post counter
-    Posts.update_one({"_id": post_oid}, {"$inc": {"comment_count": 1}})
+    # increment post counter only for top-level comments
+    if parent_oid is None:
+        Posts.update_one({"_id": post_oid}, {"$inc": {"comment_count": 1}})
     new_count = Posts.find_one({"_id": post_oid}).get("comment_count", 0)
-    print(">>> Broadcasting new_comment", flush=True)
+
 
 
     # broadcast live
