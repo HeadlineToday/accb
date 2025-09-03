@@ -219,7 +219,16 @@
           ? input.files[0].name 
           : "No file chosen";
       });  
+
   
+  socket.on("new_comment", data => {
+  console.log("🔥 got new_comment:", data);
+  const btn = document.querySelector(`.comment-btn[data-post-id="${data.post_id}"]`);
+  if (btn) {
+    btn.textContent = `💬 ${data.comment_count}`;
+  }
+});
+
  
 
   socket.on("connect", async () => {
@@ -232,6 +241,7 @@
     }
   } catch(e) { console.error("Resync failed:", e); }
 });
+
 
 
 
