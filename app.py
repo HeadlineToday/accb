@@ -213,9 +213,17 @@ def search_posts():
 @app.route("/")
 def home():
     user = current_user()
-    # Get active posts
     posts = list(Posts.find({"status": "active"}).sort("created_at", DESCENDING).limit(100))
+    for p in posts:
+        p["comment_count"] = p.get("comment_count", 0)   # ensure it’s there
     return render_template("index.html", posts=posts, user=user, cooldown=POST_COOLDOWN_SECONDS)
+
+@app.route("/api/comment_counts")
+def comment_counts():
+    counts = {}
+    for p in Posts.find({}, {"_id": 1, "comment_count": 1}):
+        counts[str(p["_id"])] = p.get("comment_count", 0)
+    return jsonify(counts)
 
 @app.route("/post", methods=["POST"])
 def create_post():
